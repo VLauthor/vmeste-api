@@ -1,0 +1,3 @@
+# Get http://localhost:3000/api/user/login?login=f&password=g;
+
+Post http://localhost:3000/api/user/signin?last_name=s&first_name=s&patronomic=s&mail=s&nickname=s&gender=true&date_birthday=s&password=s

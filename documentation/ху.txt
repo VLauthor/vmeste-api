@@ -1,0 +1,41 @@
+ ● UserService › loginUser › should throw BadRequestException for invalid email
+
+    Nest can't resolve dependencies of the MailService (?). Please make sure that the argument ConfigService at index [0] is available in the RootTestModule context.
+
+    Potential solutions:
+    - Is RootTestModule a valid NestJS module?
+    - If ConfigService is a provider, is it part of the current RootTestModule?
+    - If ConfigService is exported from a separate @Module, is that module imported within RootTestModule?
+      @Module({
+        imports: [ /* the Module containing ConfigService */ ]
+      })
+
+      31 |     };
+      32 |
+    > 33 |     const module: TestingModule = await Test.createTestingModule({
+         |                                   ^
+      34 |       providers: [
+      35 |         UserService,
+      36 |         { provide: DatabaseService, useValue: mockDatabaseService },
+module.builder.js:74:9)
+      at Object.<anonymous> (user/user.service.spec.ts:33:35)
+
+  ● UserService › loginUser › should throw BadRequestException for login failed
+
+    Nest can't resolve dependencies of the MailService (?). Please make sure that the argument ConfigService at index [0] is available in the RootTestModule context.
+
+    Potential solutions:
+    - Is RootTestModule a valid NestJS module?
+    - If ConfigService is a provider, is it part of the current RootTestModule?
+    - If ConfigService is exported from a separate @Module, is that module imported within RootTestModule?
+      @Module({
+        imports: [ /* the Module containing ConfigService */ ]
+      })
+
+      31 |     };
+      32 |
+    > 33 |     const module: TestingModule = await Test.createTestingModule({
+         |                                   ^
+      34 |       providers: [
+      35 |         UserService,
+      36 |         { provide: DatabaseService, useValue: mockDatabaseService },

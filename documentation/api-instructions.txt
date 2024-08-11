@@ -1,0 +1,228 @@
+———————————————————————————————
+SIGNIN
+--------------------------------------------------------------
+Request: http://79.174.86.224:3000/api/user/signin
+--------------------------------------------------------------
+Type: Post
+--------------------------------------------------------------
+Options:
+last_name:
+  type = string,
+  limitation = not null,
+  example: Shandybin
+first_name:
+  type = string,
+  limitation = not null,
+  example: Vladislav;
+patronomic:
+  type = string,
+  limitation = null,
+  example: Vlasimirovich;
+mail:
+  type = string,
+  limitation = not null | validity,
+  example: example@example.com;
+nickname:
+  type = string,
+  limitation = not null | validity | length more 3 | only uppercase and lowercase letters,
+  example: VLauthoe;
+number:
+  type = string,
+  limitation = not null | validity,
+  example: 81234567890;
+gender:
+  type = boolean,
+  limitation = not null,
+  example: true;
+date_birthday:
+  type = string,
+  limitation = not null  | validity,
+  example: 11.01.2000;
+password:
+  type = string,
+  limitation = not null  | length more 4 | uppercase and lowercase letters, symbols and numbers are required,
+  example: Sif48fj-sd;
+--------------------------------------------------------------
+Response JSON:
+{statiusCode: Int, message?: String, error?: String}
+--------------------------------------------------------------
+StatiusCode:
+201 - Created
+400 - Bad request
+409 - Conflict
+412 - Precondition Failed
+--------------------------------------------------------------
+Message:
+(statusCode: 201) {hash}
+--------------------------------------------------------------
+Errer:
+(statusCode: 400) 'nickname is not valid'
+(statusCode: 400) 'phone is not valid'
+(statusCode: 400) 'mail is not valid'
+(statusCode: 400) 'date is not valid'
+(statusCode: 400) 'easy password'
+(statusCode: 400) 'password is too short'
+(statusCode: 409) 'Duplicate fields: {field}}'
+(statusCode: 412) 'An unexpected error'
+———————————————————————————————
+#############################################################
+———————————————————————————————
+LOGIN
+--------------------------------------------------------------
+Request: http://79.174.86.224:3000/api/user/login
+--------------------------------------------------------------
+Type: Get
+--------------------------------------------------------------
+Options:
+login:
+  type = string,
+  limitation = not null | validity,
+  example: example@example.com | VLauthor;
+password:
+  type = string,
+  limitation = not null,
+  example: Sif48fj-sd;
+--------------------------------------------------------------
+Response JSON:
+{statiusCode: Int, message?: String, error?: String}
+--------------------------------------------------------------
+StatiusCode:
+200 - Accept
+400 - Bad request
+412 - Precondition Failed
+--------------------------------------------------------------
+Message:
+(statusCode: 200) {hash}
+--------------------------------------------------------------
+Errer:
+(statusCode: 400) 'mail is not valid'
+(statusCode: 400) 'login failed'
+———————————————————————————————
+#############################################################
+———————————————————————————————
+Create code
+--------------------------------------------------------------
+Request: http://79.174.86.224:3000/api/user/code/create
+--------------------------------------------------------------
+Type: Post
+--------------------------------------------------------------
+Options:
+mail:
+  type: string,
+  limitation = not null | validity,
+  example: example@example.com;
+--------------------------------------------------------------
+Response JSON:
+{statiusCode: Int, message?: String, error?: String}
+--------------------------------------------------------------
+StatiusCode:
+201 - Created
+400 - Bad request
+409 - Conflict
+500 - Internal Server Error
+--------------------------------------------------------------
+Message:
+(statusCode: 201) 'email sent'
+--------------------------------------------------------------
+Errer:
+(statusCode: 400) 'mail is not valid'
+(statusCode: 409) 'mail is not register'
+(statusCode: 500) 'mail could not be sent'
+———————————————————————————————
+#############################################################
+———————————————————————————————
+Check code
+--------------------------------------------------------------
+Request: http://79.174.86.224:3000/api/code/check
+--------------------------------------------------------------
+Type: Get
+--------------------------------------------------------------
+Options:
+mail:
+  type = string,
+  limitation = not null | validity,
+  example: example@example.com;
+code:
+  tupe = string;
+  limitation = length smooth 5,
+  example: 12345;
+--------------------------------------------------------------
+Response JSON:
+{statiusCode: Int, message?: String, error?: String}
+--------------------------------------------------------------
+StatiusCode:
+200 - Accept
+400 - Bad request
+408 - Request Timeout
+409 - Conflict
+--------------------------------------------------------------
+Message:
+(statusCode: 200) 'accept'
+--------------------------------------------------------------
+Errer:
+(statusCode: 400) 'mail is not valid'
+(statusCode: 408) 'code is not up to date'
+(statusCode: 409) 'invalid code'
+(statusCode: 409) 'mail is not register'
+———————————————————————————————
+#############################################################
+———————————————————————————————
+Update password
+--------------------------------------------------------------
+Request: http://79.174.86.224:3000/api/password/update
+--------------------------------------------------------------
+Type: Put
+--------------------------------------------------------------
+Options:
+mail:
+  type = string,
+  limitation = not null | validity,
+  example: example@example.com;
+code:
+  tupe = string;
+  limitation = length smooth 5,
+  example: 12345;
+password:
+  type = string,
+  limitation = not null  | length more 4 | uppercase and lowercase letters, symbols and numbers are required,
+  example: Sif48fj-sd;
+--------------------------------------------------------------
+Response JSON:
+{statiusCode: Int, message?: String, error?: String}
+--------------------------------------------------------------
+StatiusCode:
+200 - Accept
+400 - Bad request
+408 - Request Timeout
+409 - Conflict
+--------------------------------------------------------------
+Message:
+(statusCode: 200) 'accept'
+--------------------------------------------------------------
+Errer:
+(statusCode: 400) 'mail is not valid'
+(statusCode: 400) 'easy password'
+(statusCode: 400) 'password is too short'
+(statusCode: 408) 'code is not up to date'
+(statusCode: 409) 'invalid code'
+(statusCode: 409) 'mail is not register'
+———————————————————————————————
+#############################################################
+———————————————————————————————
+NAME
+--------------------------------------------------------------
+Request: http://79.174.86.224:3000/api/
+--------------------------------------------------------------
+Type:
+--------------------------------------------------------------
+Options:
+--------------------------------------------------------------
+Response JSON:
+{statiusCode: Int, message?: String, error?: String}
+--------------------------------------------------------------
+StatiusCode:
+--------------------------------------------------------------
+Message:
+--------------------------------------------------------------
+Errer:
+———————————————————————————————

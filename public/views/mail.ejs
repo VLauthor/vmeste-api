@@ -1,0 +1,144 @@
+<html>
+  <head>
+    <meta name="color-scheme" content="only dark" />
+    <style>
+      :root {
+        color-scheme: only dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        .dark_sector {
+          fill: #151f2b !important;
+        }
+      }
+      body {
+        font-family: "Roboto", sans-serif;
+        color: #ffffff;
+        display: block;
+        background-color: #262626;
+        margin: 0;
+      }
+      .header {
+        width: 100%;
+        height: fit-content;
+        background-color: #181818;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1vw solid #fdc149;
+      }
+      .header h1 {
+        font-size: 4vw;
+        color: #fdc149;
+      }
+      .header img {
+        width: 5vw;
+        height: 5vw;
+        background-color: #ffffff;
+        margin-right: 3vw;
+      }
+
+      .box {
+        width: 50vw;
+        height: fit-content;
+        margin: 9vw auto;
+        padding: 20px 60px;
+        background-color: #181818;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 0.5vw solid #fdc149;
+        transition: width 1s, height 5s, margin 1s, opacity 0s;
+        overflow: hidden;
+      }
+      .box:hover {
+        width: 80vw;
+        margin: 12vw auto;
+      }
+      .box .placeholder {
+        font-size: 2vw;
+        text-align: center;
+        opacity: 1;
+      }
+      .box:hover .placeholder {
+        height: 0;
+        opacity: 0;
+      }
+      .box:hover .str {
+        opacity: 1;
+      }
+
+      .box:hover {
+        .conteiner_code {
+          height: fit-content;
+          opacity: 1;
+        }
+      }
+      .conteiner_code {
+        height: 0;
+        display: flex;
+        opacity: 0;
+      }
+      .content_code {
+        display: flex;
+        width: 5vw;
+        height: 5vw;
+        border: 0.5vw solid #fdc149;
+        margin: 0 1vw;
+        align-items: center;
+        justify-content: center;
+      }
+      .box h1 {
+        font-size: 4vw;
+        text-align: center;
+      }
+      .content_code .item {
+        font-size: 2vw;
+      }
+      .str {
+        font-size: 1.4vw;
+        text-align: center;
+        padding-bottom: 0vw;
+        height: 0;
+        opacity: 0;
+      }
+      .footer {
+        bottom: 0;
+        width: 100%;
+        height: fit-content;
+        background-color: #181818;
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        border-bottom: 1vw solid #fdc149;
+      }
+      .footer h1 {
+        font-size: 1vw;
+        font-weight: 300;
+        font-style: normal;
+        color: #ffffff;
+        margin-left: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="cid:unique@image.cid" alt="xd" />
+      <h1>Angelica</h1>
+    </div>
+    <div class="box">
+      <h1>Восстановление пароля</h1>
+      <p class="placeholder">Нажмите на меня, чтобы посмотреть пароль</p>
+      <div class="conteiner_code">
+        <div class="content_code"><p class="item"><%= c1 %></p></div>
+        <div class="content_code"><p class="item"><%= c2 %></p></div>
+        <div class="content_code"><p class="item"><%= c3 %></p></div>
+        <div class="content_code"><p class="item"><%= c4 %></p></div>
+        <div class="content_code"><p class="item"><%= c5 %></p></div>
+      </div>
+      <p class="str">Ни в коем случае не сообщайте данный код третьим лицам</p>
+    </div>
+    <div class="footer">
+      <h1>© 2024 Angelica VL. VL - команда авторов данной платформы</h1>
+    </div>
+  </body>
+</html>

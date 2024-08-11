@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  user_id       Int              @id @default(autoincrement())
+  last_name     String
+  first_name    String
+  patronomic    String?
+  number        String           @unique
+  mail          String           @unique
+  nickname      String           @unique
+  gender        Boolean          @default(true)
+  date_birthday DateTime
+  password_hash String
+  telegram      Telegram_Users[]
+  session       Sessions[]
+  code          Code[]
+  notes         Notes[]
+  reminders Reminders[]
+}
+
+model Sessions {
+  session_id     String   @id @default(uuid())
+  user_id        Int
+  user           Users    @relation(fields: [user_id], references: [user_id])
+  active         Boolean  @default(true)
+  session_create DateTime @default(now())
+}
+
+model Telegram_Users {
+  node_id          Int     @id @default(autoincrement())
+  user_tg_id       BigInt? @unique
+  user_id          Int     @unique
+  first_name       String?
+  last_name        String?
+  username         String?
+  photo_mini_url   String?
+  photo_medium_url String?
+  photo_max_url    String?
+  bio              String?
+  user             Users?  @relation(fields: [user_id], references: [user_id])
+}
+
+model Code {
+  node_id     Int       @id @default(autoincrement())
+  user_id     Int       @unique
+  key         String
+  date_create DateTime? @default(now())
+  user        Users     @relation(fields: [user_id], references: [user_id])
+}
+
+model Notes {
+  notes_id    Int    @id @default(autoincrement())
+  user_id     Int
+  name        String
+  description String
+  user        Users  @relation(fields: [user_id], references: [user_id])
+}
+
+model Reminders {
+  reminders_id Int @id @default(autoincrement())
+  user_id Int
+  name String
+  time DateTime
+  description String?
+  user Users @relation(fields: [user_id], references: [user_id])
+}
