@@ -6,7 +6,7 @@ export declare const message: {
     remindersCreateStepOne: string;
     notLog: string;
 };
-type messageCode = 'reminders' | 'inpDateReminders' | 'allDataReminders' | null;
+type messageCode = 'reminders' | 'inpDateReminders' | 'allDataReminders' | 'viewReminfer' | null;
 export declare const messageParams: (message: messageCode, data: DataMessage) => string;
 export declare const months: Array<monthItem>;
 export {};

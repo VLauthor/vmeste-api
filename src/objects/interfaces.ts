@@ -38,7 +38,7 @@ export interface DataMessage {
 }
 
 export interface Reminder {
-  id?: number;
+  reminders_id?: number;
   title?: string;
   description?: string;
   date?: string;
@@ -120,7 +120,10 @@ export interface ChacheTelegramLogin {
   bool: boolean | null;
   session?: string;
 }
-
+export interface Slider {
+  thisI: number;
+  count: number;
+}
 export interface TelegramUserData {
   id_VL: number;
   last_name: string;
@@ -134,6 +137,7 @@ export interface TelegramUserData {
     all?: Array<Reminder>;
     createReminder?: Reminder;
   };
+  slider?: Slider;
   inputs?: {
     date?: DateInp;
   };

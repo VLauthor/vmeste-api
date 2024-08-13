@@ -11,8 +11,8 @@ export declare class NotesController {
         statusCode: import("@nestjs/common").HttpStatus;
         notes: {
             name: string;
-            description: string;
             notes_id: number;
+            description: string;
         }[];
         message?: undefined;
     }>;
@@ -24,8 +24,8 @@ export declare class NotesController {
         statusCode: import("@nestjs/common").HttpStatus;
         notes: {
             name: string;
-            description: string;
             notes_id: number;
+            description: string;
         }[];
         message?: undefined;
     }>;
@@ -37,8 +37,8 @@ export declare class NotesController {
         statusCode: import("@nestjs/common").HttpStatus;
         notes: {
             name: string;
-            description: string;
             notes_id: number;
+            description: string;
         }[];
         message?: undefined;
     }>;

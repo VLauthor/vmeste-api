@@ -12,8 +12,8 @@ export declare class NotesService {
         statusCode: HttpStatus;
         notes: {
             name: string;
-            description: string;
             notes_id: number;
+            description: string;
         }[];
         message?: undefined;
     }>;
@@ -25,8 +25,8 @@ export declare class NotesService {
         statusCode: HttpStatus;
         notes: {
             name: string;
-            description: string;
             notes_id: number;
+            description: string;
         }[];
         message?: undefined;
     }>;
@@ -38,8 +38,8 @@ export declare class NotesService {
         statusCode: HttpStatus;
         notes: {
             name: string;
-            description: string;
             notes_id: number;
+            description: string;
         }[];
         message?: undefined;
     }>;

@@ -8,11 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TBotModule = void 0;
 const common_1 = require("@nestjs/common");
-const nestjs_telegraf_1 = require("nestjs-telegraf");
 const telegram_bot_service_1 = require("./telegram-bot.service");
 const inlinekeyboard_1 = require("./inlinekeyboard");
 const configuration_module_1 = require("../config/configuration.module");
-const configuration_service_1 = require("../config/configuration.service");
 const cache_module_1 = require("../cache/cache.module");
 const database_module_1 = require("../database/database.module");
 const base64_module_1 = require("../base64/base64.module");
@@ -23,19 +21,13 @@ exports.TBotModule = TBotModule;
 exports.TBotModule = TBotModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            nestjs_telegraf_1.TelegrafModule.forRootAsync({
-                imports: [configuration_module_1.ConfModule],
-                useFactory: async (configService) => ({
-                    token: configService.returnTgToken(),
-                }),
-                inject: [configuration_service_1.ConfService],
-            }),
             cache_module_1.CacheModule,
             database_module_1.DatabaseModule,
             base64_module_1.Base64Module,
             barcode_module_1.BarcodeModule,
+            configuration_module_1.ConfModule,
         ],
-        providers: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboard],
+        providers: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards],
     })
 ], TBotModule);
 //# sourceMappingURL=telegram-bot.module.js.map

@@ -9,7 +9,12 @@ export const message = {
   notLog:
     'Вы не авторизированы в нашей системе, это можно сделать в мобильном приложении VMeste',
 };
-type messageCode = 'reminders' | 'inpDateReminders' | 'allDataReminders' | null;
+type messageCode =
+  | 'reminders'
+  | 'inpDateReminders'
+  | 'allDataReminders'
+  | 'viewReminfer'
+  | null;
 export const messageParams = (message: messageCode, data: DataMessage) => {
   switch (message) {
     case 'reminders':
@@ -24,7 +29,7 @@ export const messageParams = (message: messageCode, data: DataMessage) => {
       break;
   }
 };
-
+//`<b>Название:</b> ${user.reminders.all[user.slider.thisI].title}\n<b>Описание:</b> ${user.reminders.all[user.slider.thisI].description}\n<b>Дата и время:</b> ${user.reminders.all[user.slider.thisI].date} ${user.reminders.all[user.slider.thisI].time}`
 export const months: Array<monthItem> = [
   { num: 1, eng: 'January', rus: 'Январь', countDay: 31 },
   { num: 2, eng: 'February', rus: 'Февраль', countDay: 28 },

@@ -25,7 +25,7 @@ export class ConfService {
     return this.configService.get<number>('MAIL_PORT');
   }
 
-  returnTgToken() {
+  returnTgToken(): string {
     return this.configService.get<string>('BOT_TOKEN');
   }
 }

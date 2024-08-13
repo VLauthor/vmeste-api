@@ -9,7 +9,7 @@ export declare class DatabaseService {
         user_id: number;
         last_name: string;
         first_name: string;
-        patronomic: string;
+        patronomic: string | null;
         number: string;
         mail: string;
         nickname: string;
@@ -34,22 +34,22 @@ export declare class DatabaseService {
     checkTelegramVerifyById: (id: number) => Promise<boolean>;
     addTelegramVerify: (id: number, data: CacheTelegram) => Promise<{
         node_id: number;
-        user_tg_id: bigint;
+        user_tg_id: bigint | null;
         user_id: number;
-        first_name: string;
-        last_name: string;
-        username: string;
-        photo_mini_url: string;
-        photo_medium_url: string;
-        photo_max_url: string;
-        bio: string;
+        first_name: string | null;
+        last_name: string | null;
+        username: string | null;
+        photo_mini_url: string | null;
+        photo_medium_url: string | null;
+        photo_max_url: string | null;
+        bio: string | null;
     }>;
     getUserIdByTelegramId: (id: number) => Promise<number | false>;
     getUserIdBySession: (session: string) => Promise<number | false>;
     getAllUserNotes: (userId: number) => Promise<{
         name: string;
-        description: string;
         notes_id: number;
+        description: string;
     }[]>;
     postNoteUser: (userId: number, name: string, description: string) => Promise<void>;
     deleteNoteUser: (id: number) => Promise<void>;
@@ -69,7 +69,7 @@ export declare class DatabaseService {
         user_id: number;
         name: string;
         time: Date;
-        description: string;
+        description: string | null;
     }[]>;
     getPastRemindersCount: (id: number) => Promise<number>;
     getPastReminders: (id: number) => Promise<{
@@ -77,7 +77,7 @@ export declare class DatabaseService {
         user_id: number;
         name: string;
         time: Date;
-        description: string;
+        description: string | null;
     }[]>;
     getFutureRemindersCount: (id: number) => Promise<number>;
     getFutureReminders: (id: number) => Promise<{
@@ -85,7 +85,40 @@ export declare class DatabaseService {
         user_id: number;
         name: string;
         time: Date;
-        description: string;
+        description: string | null;
     }[]>;
     addRemindersUser: (id: number, params: Reminder) => Promise<void>;
+    getFirstReminders: (id: number) => Promise<{
+        reminders_id: number;
+        user_id: number;
+        name: string;
+        time: Date;
+        description: string | null;
+    }>;
+    deleteRemindersUser: (userId: number, reminderId: number) => Promise<void>;
+    getThisReminders: () => Promise<({
+        user: {
+            telegram: {
+                user_tg_id: bigint;
+            }[];
+        } & {
+            user_id: number;
+            last_name: string;
+            first_name: string;
+            patronomic: string | null;
+            number: string;
+            mail: string;
+            nickname: string;
+            gender: boolean;
+            date_birthday: Date;
+            password_hash: string;
+        };
+    } & {
+        reminders_id: number;
+        user_id: number;
+        name: string;
+        time: Date;
+        description: string | null;
+    })[]>;
+    private formatDateString;
 }

@@ -1,22 +1,23 @@
-import { Telegraf } from 'telegraf';
-import { ConfigService } from '@nestjs/config';
-import { InlineKeyboard } from './inlinekeyboard';
+import { OnModuleInit } from '@nestjs/common';
+import { ConfService } from '../config/configuration.service';
+import { InlineKeyboards } from './inlinekeyboard';
 import { CacheService } from 'src/cache/cache.service';
 import { DatabaseService } from 'src/database/database.service';
 import { BarcodeService } from 'src/barcode/barcode.service';
 import { Base64Service } from 'src/base64/base64.service';
-export declare class TBotService {
+export declare class TBotService implements OnModuleInit {
     private readonly cache;
-    private configService;
     private ik;
     private db;
     private bc;
     private bs64;
-    private bot;
+    private configService;
     private users;
     private reactionMess;
     private editMess;
-    constructor(cache: CacheService, configService: ConfigService, ik: InlineKeyboard, db: DatabaseService, bc: BarcodeService, bs64: Base64Service, bot: Telegraf);
+    private bot;
+    constructor(cache: CacheService, ik: InlineKeyboards, db: DatabaseService, bc: BarcodeService, bs64: Base64Service, configService: ConfService);
+    onModuleInit(): void;
     onStart(): void;
     private addListMessage;
     private addListEditMessage;
@@ -25,4 +26,10 @@ export declare class TBotService {
     private setInpDateUser;
     private checkExistData;
     private checkExistUserData;
+    private checkAllRemindersSlider;
+    private checkPastRemindersSlider;
+    private checkFutureRemindersSlider;
+    private delSlider;
+    private delIfNotSlider;
+    private formatDateString;
 }

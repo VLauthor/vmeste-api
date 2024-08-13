@@ -273,8 +273,62 @@ let DatabaseService = class DatabaseService {
                 },
             });
         };
+        this.getFirstReminders = async (id) => {
+            return await this.p.reminders.findFirst({
+                where: {
+                    user_id: id,
+                    time: {
+                        gt: new Date(),
+                    },
+                },
+                orderBy: {
+                    time: 'asc',
+                },
+            });
+        };
+        this.deleteRemindersUser = async (userId, reminderId) => {
+            await this.p.reminders.delete({
+                where: { user_id: userId, reminders_id: reminderId },
+            });
+        };
+        this.getThisReminders = async () => {
+            const now = new Date();
+            const startOfMinute = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 3, now.getMinutes(), 0, 0);
+            const endOfMinute = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 3, now.getMinutes(), 59, 999);
+            return await this.p.reminders.findMany({
+                where: {
+                    time: {
+                        gte: startOfMinute,
+                        lte: endOfMinute,
+                    },
+                },
+                include: {
+                    user: {
+                        include: {
+                            telegram: {
+                                select: {
+                                    user_tg_id: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        };
         this.p = client;
         this.h = hash_service_1.HashService;
+    }
+    formatDateString(date) {
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const second = String(date.getUTCSeconds()).padStart(2, '0');
+        return {
+            date: `${day}.${month}.${year}`,
+            time: `${hours}:${minutes}:${second}`,
+        };
     }
 };
 exports.DatabaseService = DatabaseService;
