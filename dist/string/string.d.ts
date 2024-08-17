@@ -5,8 +5,12 @@ export declare const message: {
     reminders: string;
     remindersCreateStepOne: string;
     notLog: string;
+    createNameQuiz: string;
+    createDescriptionQuiz: string;
+    createNameQuestion: string;
+    createNameAnswer: string;
 };
-type messageCode = 'reminders' | 'inpDateReminders' | 'allDataReminders' | 'viewReminfer' | null;
+type messageCode = 'reminders' | 'inpDateReminders' | 'allDataReminders' | 'viewReminfer' | 'createQuiz' | 'createQuestion' | 'createAnswer' | null;
 export declare const messageParams: (message: messageCode, data: DataMessage) => string;
 export declare const months: Array<monthItem>;
 export {};

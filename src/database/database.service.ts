@@ -2,12 +2,15 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   CacheTelegram,
   objectUser,
+  Questions,
+  Quiz,
   Reminder,
   Response,
 } from 'src/objects/interfaces';
 import { PrismaService } from '../prisma/prisma.service';
 import { signinDto } from 'src/user/dto/user.dto';
 import { HashService } from '../hash/hash.service';
+import { title } from 'process';
 @Injectable()
 export class DatabaseService {
   private p: PrismaService;
@@ -341,6 +344,58 @@ export class DatabaseService {
             telegram: {
               select: {
                 user_tg_id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  };
+  public addQuiz = async (id: number, quiz: Quiz, questions: Questions[]) => {
+    const idQuiz = await this.p.quiz.create({
+      data: {
+        author_id: id,
+        title: quiz.title,
+        description: quiz.description,
+        private: quiz.mode === 'private' ? true : false,
+        key: quiz.mode === 'private' ? quiz.key : null,
+      },
+      select: { quiz_id: true },
+    });
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      const idQuestion = await this.p.questions.create({
+        data: { quiz_id: idQuiz.quiz_id, title: question.title },
+        select: { question_id: true },
+      });
+      for (let j = 0; j < question.answers.length; j++) {
+        const answer = question.answers[j];
+        await this.p.answers.create({
+          data: {
+            question_id: idQuestion.question_id,
+            title: answer.title,
+            correct: answer.correct,
+          },
+        });
+      }
+    }
+  };
+  public GetAllQuiz = async () => {
+    return await this.p.quiz.findMany({
+      select: {
+        quiz_id: true,
+        title: true,
+        description: true,
+        private: true,
+        key: true,
+        question: {
+          select: {
+            title: true,
+            answers: {
+              select: {
+                answer_id: true,
+                title: true,
+                correct: true,
               },
             },
           },

@@ -23,6 +23,8 @@ model Users {
   code          Code[]
   notes         Notes[]
   reminders Reminders[]
+  userAnswors UserAnswors[]
+  quiz Quiz[]
 }
 
 model Sessions {
@@ -70,4 +72,43 @@ model Reminders {
   time DateTime
   description String?
   user Users @relation(fields: [user_id], references: [user_id])
+}
+
+model Quiz {
+  quiz_id Int @id @default(autoincrement())
+  author_id Int
+  title String
+  description String
+  private Boolean @default(false)
+  key String?
+  question Questions[]
+  author Users @relation(fields: [author_id], references: [user_id])
+}
+
+model Questions{
+  question_id Int @id @default(autoincrement())
+  quiz_id Int
+  title String
+  quiz Quiz @relation(fields: [quiz_id], references: [quiz_id])
+  answers Answers[]
+  userAnswors UserAnswors[]
+}
+
+model Answers {
+  answer_id Int @id @default(autoincrement())
+  question_id Int
+  title String
+  correct Boolean @default(false)
+  question Questions @relation(fields: [question_id], references: [question_id])
+  userAnswors UserAnswors[]
+}
+
+model UserAnswors {
+  node_id Int @id @default(autoincrement())
+  user_id Int
+  question_id Int
+  answer_id Int
+  user Users @relation(fields: [user_id], references: [user_id])
+  question Questions @relation(fields: [question_id], references: [question_id])
+  answers Answers @relation(fields: [answer_id], references: [answer_id])
 }

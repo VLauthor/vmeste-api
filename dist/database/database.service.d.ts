@@ -1,4 +1,4 @@
-import { CacheTelegram, objectUser, Reminder, Response } from 'src/objects/interfaces';
+import { CacheTelegram, objectUser, Questions, Quiz, Reminder, Response } from 'src/objects/interfaces';
 import { PrismaService } from '../prisma/prisma.service';
 import { signinDto } from 'src/user/dto/user.dto';
 export declare class DatabaseService {
@@ -120,5 +120,21 @@ export declare class DatabaseService {
         time: Date;
         description: string | null;
     })[]>;
+    addQuiz: (id: number, quiz: Quiz, questions: Questions[]) => Promise<void>;
+    GetAllQuiz: () => Promise<{
+        private: boolean;
+        key: string;
+        description: string;
+        quiz_id: number;
+        title: string;
+        question: {
+            answers: {
+                title: string;
+                answer_id: number;
+                correct: boolean;
+            }[];
+            title: string;
+        }[];
+    }[]>;
     private formatDateString;
 }

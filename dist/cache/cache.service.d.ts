@@ -1,9 +1,19 @@
-import { CacheTelegram, ChacheTelegramLogin } from 'src/objects/interfaces';
+import { CacheTelegram, ChacheTelegramLogin, QuizBD, TelegramUserData } from 'src/objects/interfaces';
 export declare class CacheService {
     private cacheTG;
+    private usersTg;
     private loginTG;
     private cacheSocket;
+    private arrayQuizzes;
+    setQuizzes: (data: QuizBD[]) => QuizBD[];
+    getAllQuizzes: () => QuizBD[];
+    getOneQuizzes: (i: number) => QuizBD;
     getTG: (key: string) => CacheTelegram;
+    getUsersTg: (key: number) => TelegramUserData;
+    setUsersTg: (key: number, data: TelegramUserData) => Map<number, TelegramUserData>;
+    setEditMessUserQuiz: (key: number, key2: string, value: number) => void;
+    getEditMessUser: (key: number, key2: string) => Promise<number | false>;
+    hasUsersTg: (key: number) => boolean;
     setTG: (key: string, value: CacheTelegram, ttl: number) => void;
     delTG: (key: string) => void;
     setSocket: (key: string, value: string) => void;

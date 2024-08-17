@@ -1,10 +1,15 @@
 import {
+  Answers,
   monthItem,
   paramsStepMinute,
+  Questions,
+  Quiz,
   stepCancel,
   stepHourParams,
 } from 'src/objects/interfaces';
 import { InlineKeyboard } from 'grammy';
+import { create } from 'node:domain';
+import { title } from 'node:process';
 
 export class InlineKeyboards {
   constructor() {}
@@ -210,6 +215,99 @@ export class InlineKeyboards {
       .row()
       .text(settings.delete ? 'Удалить' : '', `${tag}-delete=${id}`)
       .row(this.closeButton(tag));
+  }
+  boxSliderQuiz(tag: string, id: number) {
+    return new InlineKeyboard()
+      .text('Пройти', `${tag}-view=${id}`)
+      .row()
+      .text('<-', `${tag}-slider-back`)
+      .text('->', `${tag}-slider-next`)
+      .row(this.closeButton(tag));
+  }
+  keyboardQuiz() {
+    return new InlineKeyboard()
+      .text('Создать квиз', 'createQuiz')
+      .row()
+      .text('Все викторины', 'view-all-quiz')
+      .row(this.closeButton('default'));
+  }
+  createQuiz(data: Quiz) {
+    const { title, description, mode, key } = data;
+    return new InlineKeyboard()
+      .text(title ? 'Изменить название' : 'Добавить название', 'add_name_quiz')
+      .row()
+      .text(
+        description ? 'Изменить описание' : 'Добавить описание',
+        'add_description_quiz',
+      )
+      .row()
+      .text(
+        mode == 'private' ? 'Тип викторины 🔒' : 'Тип викторины: 🔓',
+        'edit_mode_quiz',
+      )
+      .row()
+      .text(mode == 'private' ? 'Добавить ключ' : '', 'add_key_quiz')
+      .row()
+      .text(
+        title && description && (mode == 'public' || (mode == 'private' && key))
+          ? 'Сохранить'
+          : '',
+        'save-data-quiz',
+      )
+      .row(this.closeButton('default'));
+  }
+  keyboardAddQuestion(data: Questions[]) {
+    const keyboard = new InlineKeyboard();
+    if (data.length > 0) {
+      keyboard.text('Создать викториину', 'finally-create-quiz').row();
+    }
+    if (data)
+      for (let i = 0; i < data.length; i++) {
+        keyboard.text(`${i + 1}) ${data[i].title}`, `edit-question=${i}`).row();
+      }
+    keyboard
+      .text('Добавить вопрос', 'add_questions')
+      .row(this.closeButton('default'));
+    return keyboard;
+  }
+  keyboardCreateQuestion(data: Answers[], title: string) {
+    const keyboard = new InlineKeyboard();
+    keyboard
+      .text(title && data.length > 1 ? 'Сохранить вопрос' : '', 'save-question')
+      .row();
+    keyboard
+      .text(
+        title ? 'Изменить текст вопроса' : 'Добавить текст вопроса',
+        'add_text_question',
+      )
+      .row();
+    for (let i = 0; i < data.length; i++) {
+      keyboard.text(
+        `${i + 1}) ${data[i].correct ? ' ✅' : '❌'}`,
+        `edit-answer=${i}`,
+      );
+      if ((i + 1) % 2 === 0) keyboard.row();
+    }
+    keyboard
+      .row()
+      .text(title ? 'Добавить вариант ответа' : '', 'add_answer')
+      .row()
+      .text('Удалить вариант ответа', `delete-question`)
+      .row(this.closeButton('default'));
+    return keyboard;
+  }
+  keyboardCreateAnswer(data: Answers) {
+    const keyboard = new InlineKeyboard();
+    keyboard
+      .text(data.title ? 'Сохранить' : '', 'save-answer')
+      .row()
+      .text('Изменить текст ответа', 'add_text_answer')
+      .row()
+      .text(data.correct === true ? '✅' : '❌', 'edit_correct_answer')
+      .row()
+      .text('Удалить вопрос', `delete-answer`)
+      .row(this.closeButton('default'));
+    return keyboard;
   }
 }
 

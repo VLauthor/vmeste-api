@@ -20,6 +20,34 @@ export interface User {
     date_birthday?: string;
     password_hash?: string;
 }
+export interface Quiz {
+    title?: string;
+    description?: string;
+    mode: 'private' | 'public';
+    key?: string;
+    questions?: Questions;
+}
+export interface QuizBD {
+    quiz_id?: number;
+    author_id?: number;
+    title?: string;
+    description?: string;
+    private?: boolean;
+    key?: string;
+    questions?: Questions[];
+}
+export interface Questions {
+    question_id?: number;
+    quiz_id?: number;
+    title?: string;
+    answers?: Answers[];
+}
+export interface Answers {
+    answer_id?: number;
+    question_id?: number;
+    title?: string;
+    correct?: boolean;
+}
 export interface DataMessage {
     remindersStat?: {
         count: number;
@@ -34,6 +62,13 @@ export interface DataMessage {
         hour?: number | string;
         minute?: number | string;
     };
+    quiz?: Quiz;
+    question?: Questions;
+    cursors?: {
+        question?: number;
+        answer?: number;
+    };
+    answer?: Answers;
 }
 export interface Reminder {
     reminders_id?: number;
@@ -131,6 +166,20 @@ export interface TelegramUserData {
     inputs?: {
         date?: DateInp;
     };
+    quiz?: {
+        create?: {
+            quizData?: Quiz;
+            questions?: Questions[];
+            cursors?: {
+                question?: number;
+                answer?: number;
+            };
+        };
+        all?: QuizBD[];
+    };
+    editMess?: {
+        quiz?: number;
+    };
 }
 export type formatTime = 'AM' | 'PM';
 export interface DateInp {
@@ -158,4 +207,9 @@ export interface stepHourParams {
     step: number;
     thisHour: number;
     format: formatTime;
+}
+export interface AnswersBD {
+    answer_id: 1;
+    title: 'Омы';
+    correct: true;
 }

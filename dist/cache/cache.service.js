@@ -11,11 +11,30 @@ const common_1 = require("@nestjs/common");
 let CacheService = class CacheService {
     constructor() {
         this.cacheTG = new Map();
+        this.usersTg = new Map();
         this.loginTG = new Map();
         this.cacheSocket = new Map();
+        this.arrayQuizzes = [];
+        this.setQuizzes = (data) => (this.arrayQuizzes = data);
+        this.getAllQuizzes = () => this.arrayQuizzes;
+        this.getOneQuizzes = (i) => this.arrayQuizzes[i];
         this.getTG = (key) => {
             return this.cacheTG.get(key);
         };
+        this.getUsersTg = (key) => this.usersTg.get(key);
+        this.setUsersTg = (key, data) => this.usersTg.set(key, data);
+        this.setEditMessUserQuiz = (key, key2, value) => {
+            console.log(key, key2, value);
+            if (!this.usersTg.get(key).editMess)
+                this.usersTg.get(key).editMess = {};
+            this.usersTg.get(key).editMess.quiz = value;
+        };
+        this.getEditMessUser = async (key, key2) => {
+            if (!this.usersTg.get(key).editMess || !this.usersTg.get(key).editMess.quiz)
+                return false;
+            return this.usersTg.get(key).editMess.quiz;
+        };
+        this.hasUsersTg = (key) => this.usersTg.has(key);
         this.setTG = (key, value, ttl) => {
             this.cacheTG.set(key, value);
             setTimeout(() => {

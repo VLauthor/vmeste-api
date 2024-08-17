@@ -1,22 +1,25 @@
 import { OnModuleInit } from '@nestjs/common';
+import { Bot, Context } from 'grammy';
 import { ConfService } from '../config/configuration.service';
 import { InlineKeyboards } from './inlinekeyboard';
 import { CacheService } from 'src/cache/cache.service';
 import { DatabaseService } from 'src/database/database.service';
 import { BarcodeService } from 'src/barcode/barcode.service';
 import { Base64Service } from 'src/base64/base64.service';
+import { Quiz } from './items/quiz';
 export declare class TBotService implements OnModuleInit {
-    private readonly cache;
-    private ik;
+    readonly cache: CacheService;
+    ik: InlineKeyboards;
     private db;
     private bc;
     private bs64;
     private configService;
-    private users;
+    private quiz;
     private reactionMess;
     private editMess;
-    private bot;
-    constructor(cache: CacheService, ik: InlineKeyboards, db: DatabaseService, bc: BarcodeService, bs64: Base64Service, configService: ConfService);
+    private DDosList;
+    bot: Bot;
+    constructor(cache: CacheService, ik: InlineKeyboards, db: DatabaseService, bc: BarcodeService, bs64: Base64Service, configService: ConfService, quiz: Quiz);
     onModuleInit(): void;
     onStart(): void;
     private addListMessage;
@@ -31,5 +34,7 @@ export declare class TBotService implements OnModuleInit {
     private checkFutureRemindersSlider;
     private delSlider;
     private delIfNotSlider;
+    private DDoSProtection;
     private formatDateString;
+    returnBot(): Bot<Context, import("grammy").Api<import("grammy").RawApi>>;
 }

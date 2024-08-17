@@ -1,4 +1,4 @@
-import { monthItem, paramsStepMinute, stepCancel, stepHourParams } from 'src/objects/interfaces';
+import { Answers, monthItem, paramsStepMinute, Questions, Quiz, stepCancel, stepHourParams } from 'src/objects/interfaces';
 import { InlineKeyboard } from 'grammy';
 export declare class InlineKeyboards {
     constructor();
@@ -35,4 +35,10 @@ export declare class InlineKeyboards {
         view: boolean;
         delete: boolean;
     }): InlineKeyboard;
+    boxSliderQuiz(tag: string, id: number): InlineKeyboard;
+    keyboardQuiz(): InlineKeyboard;
+    createQuiz(data: Quiz): InlineKeyboard;
+    keyboardAddQuestion(data: Questions[]): InlineKeyboard;
+    keyboardCreateQuestion(data: Answers[], title: string): InlineKeyboard;
+    keyboardCreateAnswer(data: Answers): InlineKeyboard;
 }

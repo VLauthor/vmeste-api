@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Bot, InputFile, Keyboard } from 'grammy';
-import { FileFlavor, hydrateFiles } from '@grammyjs/files';
+import { Bot, Context, InputFile, Keyboard } from 'grammy';
 import { Menu, MenuRange } from '@grammyjs/menu';
+import { EmojiFlavor, emojiParser } from '@grammyjs/emoji';
 import { ConfService } from '../config/configuration.service';
 import { CacheTelegram, Mess, TelegramUserData } from '../objects/interfaces';
 import { InlineKeyboards } from './inlinekeyboard';
@@ -14,25 +14,28 @@ import fs from 'fs';
 import path from 'path';
 import { message, messageParams, months } from 'src/string/string';
 import { todo } from 'node:test';
-
+import { Quiz } from './items/quiz';
 @Injectable()
 export class TBotService implements OnModuleInit {
-  private users: Map<number, TelegramUserData>;
   private reactionMess: Map<number, Map<number, Mess>>;
   private editMess: Map<number, Map<string, number>>;
-  private bot: Bot;
+  private DDosList: Record<number, number[]> = {};
+  public bot: Bot;
   constructor(
-    private readonly cache: CacheService,
-    private ik: InlineKeyboards,
+    public readonly cache: CacheService,
+    public ik: InlineKeyboards,
     private db: DatabaseService,
     private bc: BarcodeService,
     private bs64: Base64Service,
     private configService: ConfService,
+
+    private quiz: Quiz,
   ) {
-    this.bot = new Bot(this.configService.returnTgToken());
+    type MyContext = EmojiFlavor<Context>;
+    this.bot = new Bot<MyContext>(this.configService.returnTgToken());
     this.reactionMess = new Map<number, Map<number, Mess>>();
     this.editMess = new Map<number, Map<string, number>>();
-    this.users = new Map<number, TelegramUserData>();
+    quiz = new Quiz(cache, ik, db);
   }
   onModuleInit() {
     this.onStart();
@@ -40,6 +43,7 @@ export class TBotService implements OnModuleInit {
 
   onStart() {
     this.bot.start();
+    this.bot.command('myid', (ctx) => ctx.reply(ctx.from.id.toString()));
     const main = new Menu('root-menu')
       .text('Поздороваться!', (ctx) => ctx.reply('Привет!'))
       .row()
@@ -62,14 +66,22 @@ export class TBotService implements OnModuleInit {
       .row()
       .back('Вернуться');
     main.register(settings);
+    this.bot.use(this.DDoSProtection);
     this.bot.use(main);
     this.bot.use(settings);
-    this.bot.use();
+    this.bot.use(emojiParser());
+    // this.bot.use(quiz);
     this.bot.command('menu', async (ctx) => {
       await ctx.reply('Меню наших возмжностей', { reply_markup: main });
     });
-    this.bot.command('stop', async (ctx) => {
+    this.bot.command('restart', async (ctx) => {
       if (ctx.from.id == 622692773) {
+        ctx.reply('Бот приостановлен');
+        this.bot.stop();
+        setTimeout(() => {
+          this.bot.start();
+          this.bot.api.sendMessage(622692773, 'Бот запущен');
+        }, 2000);
       }
     });
     this.bot.callbackQuery(/^disable_register-.+$/, (ctx) => {
@@ -93,15 +105,45 @@ export class TBotService implements OnModuleInit {
       this.cache.updateBoolTG(code, true);
       return ctx.answerCallbackQuery('Успешная регистрация!');
     });
-
-    this.bot.on('message:text', async (ctx, Next) => {
-      if (ctx.message.text.startsWith('/start')) return Next();
-      if (!this.users.has(ctx.from.id)) {
+    todo('buisness_logic');
+    this.bot.on('business_message', async (ctx, Next) => {
+      // Access the message object.
+      const message = ctx.businessMessage;
+      if (message.text == '/start') {
+        ctx.react('👀');
+        ctx.reply('на данное сообщение отвечает бот');
+      }
+      Next();
+    });
+    this.bot.on(
+      [
+        'business_message:voice',
+        'business_message:animation',
+        'business_message:video',
+        'business_message:sticker',
+      ],
+      (ctx) => {
+        const msg = ctx.message;
+        console.log(msg);
+        ctx.reply('Ваше аудио/видео конетнт позже будет просмотрен', {});
+        ctx.reply('Ваше аудио/видео конетнт позже будет просмотрен', {
+          reply_parameters: { message_id: msg.message_id },
+        });
+      },
+    );
+    this.bot.use(async (ctx, Next) => {
+      if (
+        ctx.message &&
+        ctx.message.text &&
+        ctx.message.text.startsWith('/start')
+      )
+        return Next();
+      if (!this.cache.hasUsersTg(ctx.from.id)) {
         const user_id = await this.db.getUserIdByTelegramId(ctx.from.id);
         console.log(user_id);
         if (!user_id) return ctx.reply(message.notLog);
         const ui = await this.db.getUserInfo(user_id);
-        this.users.set(ctx.from.id, {
+        this.cache.setUsersTg(ctx.from.id, {
           id_VL: user_id,
           last_name: ui.last_name,
           first_name: ui.first_name,
@@ -115,19 +157,8 @@ export class TBotService implements OnModuleInit {
       }
       Next();
     });
-    this.bot.on(':voice', async (ctx) => {
-      // this.bot.api.forwardMessage(
-      //   ctx.from.id,
-      //   ctx.from.id,
-      //   ctx.message.message_id,
-      // );
-      const file_id = await this.bot.api.getFile(ctx.message.voice.file_id);
-      const fileUrl = `https://api.telegram.org/file/bot/${this.bot.token}/${file_id.file_id}`;
-      ctx.reply(fileUrl, {
-        reply_parameters: { message_id: ctx.message.message_id },
-      });
-      console.log(file_id, fileUrl);
-    });
+    this.bot.use(this.quiz.getComposer());
+    this.bot.use(this.quiz.getComposer());
     todo('test');
     this.bot.command('testkeyboard', (ctx) => {
       const keyboard = new Keyboard()
@@ -141,36 +172,8 @@ export class TBotService implements OnModuleInit {
         .placeholder('хуй');
       ctx.reply('a', { reply_markup: keyboard });
     });
-    this.bot.inlineQuery(/best bot (framework|library)/, async (ctx) => {
-      const match = ctx.match; // regex match object
-      const query = ctx.inlineQuery.query; // query string
-      console.log(match, query);
-    });
-    this.bot.on('inline_query', async (ctx) => {
-      const query = ctx.inlineQuery.query; // query string
-      console.log(query);
-    });
     this.bot.on('message::url', (ctx) => console.log(ctx));
-    this.bot.on('callback_query', async (ctx, Next) => {
-      if (!this.users.has(ctx.from.id)) {
-        const user_id = await this.db.getUserIdByTelegramId(ctx.from.id);
-        console.log(user_id);
-        if (!user_id) return ctx.reply(message.notLog);
-        const ui = await this.db.getUserInfo(user_id);
-        this.users.set(ctx.from.id, {
-          id_VL: user_id,
-          last_name: ui.last_name,
-          first_name: ui.first_name,
-          patronomic: ui?.patronomic,
-          mail: ui.mail,
-          nickname: ui.nickname,
-          date_birthday: ui.date_birthday,
-          number: ui.number,
-        });
-        // return ctx.reply(message.notLog);
-      }
-      Next();
-    });
+
     this.bot.command('start', async (ctx) => {
       if (ctx.match == '') return await ctx.reply('Welcome');
       const payload = ctx.match;
@@ -250,11 +253,11 @@ export class TBotService implements OnModuleInit {
       this.bot.api.deleteMessage(ctx.chat.id, ctx.message.message_id);
     });
     this.bot.command(['profile', 'p'], (ctx) => {
-      ctx.reply(`${this.users.get(ctx.from.id).nickname}`);
+      ctx.reply(`${this.cache.getUsersTg(ctx.from.id).nickname}`);
     });
     this.bot.command(['reminders', 'r'], async (ctx) => {
       ctx.deleteMessage();
-      const id = this.users.get(ctx.from.id).id_VL;
+      const id = this.cache.getUsersTg(ctx.from.id).id_VL;
       const countAll_r = await this.db.getAllRemindersCount(id);
       const countPast_r = await this.db.getPastRemindersCount(id);
       const countFuture_r = await this.db.getFutureRemindersCount(id);
@@ -320,9 +323,9 @@ export class TBotService implements OnModuleInit {
             ctx.message.reply_to_message.message_id,
             ctx.message.message_id,
           ]);
-          if (!this.users.get(ctx.from.id).reminders)
-            this.users.get(ctx.from.id).reminders = {};
-          this.users.get(ctx.from.id).reminders.createReminder = {
+          if (!this.cache.getUsersTg(ctx.from.id).reminders)
+            this.cache.getUsersTg(ctx.from.id).reminders = {};
+          this.cache.getUsersTg(ctx.from.id).reminders.createReminder = {
             title: ctx.message.text,
           };
           this.reactionMess
@@ -347,17 +350,18 @@ export class TBotService implements OnModuleInit {
             ctx.message.reply_to_message.message_id,
             ctx.message.message_id,
           ]);
-          if (!this.users.get(ctx.from.id).reminders)
-            this.users.get(ctx.from.id).reminders = {};
-          this.users.get(ctx.from.id).reminders.createReminder.description =
-            ctx.message.text;
+          if (!this.cache.getUsersTg(ctx.from.id).reminders)
+            this.cache.getUsersTg(ctx.from.id).reminders = {};
+          this.cache.getUsersTg(
+            ctx.from.id,
+          ).reminders.createReminder.description = ctx.message.text;
           this.reactionMess
             .get(ctx.chat.id)
             .delete(ctx.message.reply_to_message.message_id);
           const year = new Date().getFullYear();
           const month = months;
           this.setInpDateUser(ctx.from.id);
-          const inpDate = this.users.get(ctx.from.id).inputs.date;
+          const inpDate = this.cache.getUsersTg(ctx.from.id).inputs.date;
           await ctx.reply(
             messageParams('inpDateReminders', {
               inpDateReminders: {
@@ -382,7 +386,7 @@ export class TBotService implements OnModuleInit {
       }
     });
     this.bot.callbackQuery('open_all_reminders', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!user) {
         ctx.answerCallbackQuery('Ваши данные потеряны');
         ctx.deleteMessage();
@@ -428,7 +432,7 @@ export class TBotService implements OnModuleInit {
       this.addListEditMessage(ctx.from.id, 'slider', msg.message_id);
     });
     this.bot.callbackQuery('open_past_reminders', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!user) {
         ctx.answerCallbackQuery('Ваши данные потеряны');
         ctx.deleteMessage();
@@ -474,7 +478,7 @@ export class TBotService implements OnModuleInit {
       this.addListEditMessage(ctx.from.id, 'slider', msg.message_id);
     });
     this.bot.callbackQuery('open_future_reminders', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!user) {
         ctx.answerCallbackQuery('Ваши данные потеряны');
         ctx.deleteMessage();
@@ -520,7 +524,7 @@ export class TBotService implements OnModuleInit {
       this.addListEditMessage(ctx.from.id, 'slider', msg.message_id);
     });
     this.bot.callbackQuery('open_last_reminders', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!user) {
         ctx.answerCallbackQuery('Ваши данные потеряны');
         ctx.deleteMessage();
@@ -551,7 +555,7 @@ export class TBotService implements OnModuleInit {
       );
     });
     this.bot.callbackQuery(/^last_reminders-delete=.+$/, async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkFutureRemindersSlider(ctx, user))) return;
       const RID = ctx.update.callback_query.data.split('=')[1];
       await this.db.deleteRemindersUser(user.id_VL, Number(RID));
@@ -560,7 +564,7 @@ export class TBotService implements OnModuleInit {
       console.log(RID);
     });
     this.bot.callbackQuery('reminders-bMonth', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistUserData(ctx, user)) return;
       if (!user || !user.reminders || !user.reminders.createReminder) {
         ctx.answerCallbackQuery(
@@ -595,7 +599,7 @@ export class TBotService implements OnModuleInit {
       });
     });
     this.bot.callbackQuery('reminders-nMonth', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistUserData(ctx, user)) return;
       if (user.inputs.date.month == 11) {
         user.inputs.date.month = 0;
@@ -623,7 +627,7 @@ export class TBotService implements OnModuleInit {
       });
     });
     this.bot.callbackQuery('reminders-nYear', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistUserData(ctx, user)) return;
       user.inputs.date.year++;
       console.log(
@@ -651,7 +655,7 @@ export class TBotService implements OnModuleInit {
       });
     });
     this.bot.callbackQuery('reminders-bYear', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistUserData(ctx, user)) return;
       user.inputs.date.year--;
       console.log(
@@ -682,7 +686,7 @@ export class TBotService implements OnModuleInit {
       ctx.deleteMessage();
     });
     this.bot.callbackQuery('reminders-kh-next-minute', (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       if (user.inputs.date.formatTime == 'PM')
         user.inputs.date.hour = user.inputs.date.hour + 12;
@@ -705,7 +709,7 @@ export class TBotService implements OnModuleInit {
       });
     });
     this.bot.callbackQuery('reminders-kmp-save', (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const { day, month, year, hour, minute } = user.inputs.date;
       const date = `${day < 10 ? '0' + day : day}.${month + 1 < 10 ? '0' + (month + 1) : month + 1}.${year}`;
@@ -728,7 +732,7 @@ export class TBotService implements OnModuleInit {
       );
     });
     this.bot.callbackQuery('reminders-save', async (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       ctx.deleteMessage();
       await this.db.addRemindersUser(user.id_VL, user.reminders.createReminder);
@@ -736,7 +740,7 @@ export class TBotService implements OnModuleInit {
     });
     //
     this.bot.callbackQuery('reminders-slider-back', async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkAllRemindersSlider(ctx, user))) return 0;
       if (!(await this.delIfNotSlider(ctx))) return;
       const oldI = user.slider.thisI;
@@ -766,7 +770,7 @@ export class TBotService implements OnModuleInit {
         .catch((e) => console.log(e));
     });
     this.bot.callbackQuery('reminders-slider-next', async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkAllRemindersSlider(ctx, user))) return;
       if (!(await this.delIfNotSlider(ctx))) return;
       const oldI = user.slider.thisI;
@@ -797,7 +801,7 @@ export class TBotService implements OnModuleInit {
     });
     //
     this.bot.callbackQuery('reminders-past-slider-back', async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkPastRemindersSlider(ctx, user))) return 0;
       if (!(await this.delIfNotSlider(ctx))) return;
       const oldI = user.slider.thisI;
@@ -827,7 +831,7 @@ export class TBotService implements OnModuleInit {
         .catch((e) => console.log(e));
     });
     this.bot.callbackQuery('reminders-past-slider-next', async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkPastRemindersSlider(ctx, user))) return;
       if (!(await this.delIfNotSlider(ctx))) return;
       const oldI = user.slider.thisI;
@@ -858,7 +862,7 @@ export class TBotService implements OnModuleInit {
     });
     //
     this.bot.callbackQuery('reminders-future-slider-back', async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkFutureRemindersSlider(ctx, user))) return 0;
       if (!(await this.delIfNotSlider(ctx))) return;
       const oldI = user.slider.thisI;
@@ -888,7 +892,7 @@ export class TBotService implements OnModuleInit {
         .catch((e) => console.log(e));
     });
     this.bot.callbackQuery('reminders-future-slider-next', async (ctx) => {
-      const user = this.users.get(ctx.chat.id);
+      const user = this.cache.getUsersTg(ctx.chat.id);
       if (!(await this.checkFutureRemindersSlider(ctx, user))) return;
       if (!(await this.delIfNotSlider(ctx))) return;
       const oldI = user.slider.thisI;
@@ -924,7 +928,7 @@ export class TBotService implements OnModuleInit {
         /^reminders-delete=.+$/,
       ],
       async (ctx) => {
-        const user = this.users.get(ctx.chat.id);
+        const user = this.cache.getUsersTg(ctx.chat.id);
         if (!(await this.checkFutureRemindersSlider(ctx, user))) return;
         if (!(await this.delIfNotSlider(ctx))) return;
         const RID = ctx.update.callback_query.data.split('=')[1];
@@ -962,7 +966,7 @@ export class TBotService implements OnModuleInit {
       },
     );
     this.bot.callbackQuery(/^reminders-kmp=.+$/, (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const num = ctx.match[0].split('=')[1];
       user.inputs.date.minute + Number(num) > 59
@@ -994,7 +998,7 @@ export class TBotService implements OnModuleInit {
         .catch(() => {});
     });
     this.bot.callbackQuery(/^reminders-kmm=.+$/, (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const num = ctx.match[0].split('=')[1];
       user.inputs.date.minute - Number(num) < 0
@@ -1010,7 +1014,7 @@ export class TBotService implements OnModuleInit {
           minute:
             user.inputs.date.minute < 10
               ? '0' + user.inputs.date.minute
-              : user.inputs.date.minute ?? 'мм',
+              : (user.inputs.date.minute ?? 'мм'),
         },
       });
       ctx
@@ -1025,7 +1029,7 @@ export class TBotService implements OnModuleInit {
         .catch(() => {});
     });
     this.bot.callbackQuery([/^.+-kh=AM$/, /^.+-kh=PM$/], (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const format = ctx.match[0].split('=')[1];
       ctx.answerCallbackQuery(format);
@@ -1054,7 +1058,7 @@ export class TBotService implements OnModuleInit {
       });
     });
     this.bot.callbackQuery(/^reminders-kh=.+$/, (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const hour = ctx.match[0].split('=')[1];
       if (hour == 'true')
@@ -1083,7 +1087,7 @@ export class TBotService implements OnModuleInit {
       });
     });
     this.bot.callbackQuery(/^.+-kd-next-hour$/, (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const text = messageParams('inpDateReminders', {
         inpDateReminders: {
@@ -1113,7 +1117,7 @@ export class TBotService implements OnModuleInit {
       ctx.answerCallbackQuery('Данное число уже выбрано');
     });
     this.bot.callbackQuery(/^reminders-kd.+$/, (ctx) => {
-      const user = this.users.get(ctx.from.id);
+      const user = this.cache.getUsersTg(ctx.from.id);
       if (!this.checkExistData(ctx, user)) return;
       const number = ctx.match[0].split('=')[1];
       console.log(number);
@@ -1200,6 +1204,7 @@ export class TBotService implements OnModuleInit {
       if (list.length > 0) {
         for (const item of list) {
           if (!item.user.telegram || item.user.telegram.length != 1) return;
+          console.log(item.user.telegram[0].user_tg_id, 'send');
           this.bot.api.sendMessage(
             Number(item.user.telegram[0].user_tg_id),
             `Уведомление!\nВам пришло напоминаие: ${item.name}\nОписание: ${item.description}`,
@@ -1231,17 +1236,17 @@ export class TBotService implements OnModuleInit {
     return this.editMess.get(id).get(key);
   }
   private setInpDateUser(id: number) {
-    if (!this.users.get(id).inputs) {
-      this.users.get(id).inputs = {};
+    if (!this.cache.getUsersTg(id).inputs) {
+      this.cache.getUsersTg(id).inputs = {};
       const date = new Date();
-      return (this.users.get(id).inputs.date = {
+      return (this.cache.getUsersTg(id).inputs.date = {
         year: date.getFullYear(),
         month: date.getMonth(),
       });
     }
-    if (!this.users.get(id).inputs.date) {
+    if (!this.cache.getUsersTg(id).inputs.date) {
       const date = new Date();
-      return (this.users.get(id).inputs.date = {
+      return (this.cache.getUsersTg(id).inputs.date = {
         year: date.getFullYear(),
         month: date.getMonth(),
       });
@@ -1396,6 +1401,34 @@ export class TBotService implements OnModuleInit {
     }
     return true;
   }
+  private DDoSProtection = async (ctx: Context, Next: () => Promise<void>) => {
+    const userId = ctx.from?.id;
+    const currentTime = Date.now();
+    if (!ctx.businessMessage) return Next();
+    if (userId) {
+      if (!this.DDosList[userId]) {
+        this.DDosList[userId] = [];
+      }
+      this.DDosList[userId] = this.DDosList[userId].filter(
+        (timestamp) => currentTime - timestamp < 1000,
+      );
+
+      if (this.DDosList[userId].length >= 2) {
+        const warning = await ctx.reply(
+          '⚠️ Вы превышаете лимит запросов (макс. 2 в секунду). Пожалуйста, подождите.',
+        );
+        setTimeout(() => {
+          ctx.api.deleteMessage(userId, warning.message_id);
+        }, 2000);
+        return;
+      }
+
+      // Добавляем текущий запрос во временной массив
+      this.DDosList[userId].push(currentTime);
+    }
+
+    return Next();
+  };
   private formatDateString(date: Date): { date: string; time: string } {
     const day = String(date.getUTCDate()).padStart(2, '0'); // Получаем день
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Получаем месяц (месяцы начинаются с 0)
@@ -1403,5 +1436,8 @@ export class TBotService implements OnModuleInit {
     const hours = String(date.getUTCHours()).padStart(2, '0'); // Получаем часы
     const minutes = String(date.getUTCMinutes()).padStart(2, '0'); // Получаем минуты
     return { date: `${day}.${month}.${year}`, time: `${hours}:${minutes}` };
+  }
+  public returnBot() {
+    return this.bot;
   }
 }

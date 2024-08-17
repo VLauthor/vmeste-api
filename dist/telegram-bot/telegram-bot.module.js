@@ -15,6 +15,7 @@ const cache_module_1 = require("../cache/cache.module");
 const database_module_1 = require("../database/database.module");
 const base64_module_1 = require("../base64/base64.module");
 const barcode_module_1 = require("../barcode/barcode.module");
+const quiz_1 = require("./items/quiz");
 let TBotModule = class TBotModule {
 };
 exports.TBotModule = TBotModule;
@@ -26,8 +27,11 @@ exports.TBotModule = TBotModule = __decorate([
             base64_module_1.Base64Module,
             barcode_module_1.BarcodeModule,
             configuration_module_1.ConfModule,
+            inlinekeyboard_1.InlineKeyboards,
+            quiz_1.Quiz,
         ],
-        providers: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards],
+        providers: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards, quiz_1.Quiz],
+        exports: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards],
     })
 ], TBotModule);
 //# sourceMappingURL=telegram-bot.module.js.map

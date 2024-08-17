@@ -8,25 +8,43 @@ export const message = {
     'Супер, для создания напоминания нужно заполнить три поля.\nДавайте скорее начнем!\n\nВведите название напоминания...\n\n<i><u>Ваш ответ должен быть "ответом" на данное сообщение</u></i>',
   notLog:
     'Вы не авторизированы в нашей системе, это можно сделать в мобильном приложении VMeste',
+  createNameQuiz: 'Отправьте ответом на данное сообщение название викторины',
+  createDescriptionQuiz:
+    'Отправьте ответом на данное сообщение описание викторины',
+  createNameQuestion: 'Отправьте ответом на данное сообщение текст опроса',
+  createNameAnswer: 'Отправьте ответом на данное сообщение текст ответа',
 };
 type messageCode =
   | 'reminders'
   | 'inpDateReminders'
   | 'allDataReminders'
   | 'viewReminfer'
+  | 'createQuiz'
+  | 'createQuestion'
+  | 'createAnswer'
   | null;
 export const messageParams = (message: messageCode, data: DataMessage) => {
-  switch (message) {
-    case 'reminders':
-      return `Блок напоминаний\n\nКол-во ваших напоминаний: ${data.remindersStat.count}\nПредстоящие напоминания: ${data.remindersStat.future}\nЗавершенные напоминания: ${data.remindersStat.past}\n\nВыберите действие из меню ниже`;
-      break;
-    case 'inpDateReminders':
-      return `Введите дату и время напоминания при помощи клавиатуры ниже.\n${data.inpDateReminders.day}.${data.inpDateReminders.month}.${data.inpDateReminders.year} ${data.inpDateReminders.hour}:${data.inpDateReminders.minute}`;
-      break;
-    case 'allDataReminders':
-      const { title, description, date, time } = data.reminder;
-      return `<b>Ваша новая заметка:</b>\n\nНазвание: ${title}\nОписание: ${description}\nДата и время: ${date} ${time}`;
-      break;
+  if (message == 'reminders') {
+    return `Блок напоминаний\n\nКол-во ваших напоминаний: ${data.remindersStat.count}\nПредстоящие напоминания: ${data.remindersStat.future}\nЗавершенные напоминания: ${data.remindersStat.past}\n\nВыберите действие из меню ниже`;
+  } else if (message === 'inpDateReminders') {
+    return `Введите дату и время напоминания при помощи клавиатуры ниже.\n${data.inpDateReminders.day}.${data.inpDateReminders.month}.${data.inpDateReminders.year} ${data.inpDateReminders.hour}:${data.inpDateReminders.minute}`;
+  } else if (message === 'allDataReminders') {
+    const { title, description, date, time } = data.reminder;
+    return `<b>Ваша новая заметка:</b>\n\nНазвание: ${title}\nОписание: ${description}\nДата и время: ${date} ${time}`;
+  } else if (message === 'createQuiz') {
+    const { title, description, mode, key } = data.quiz;
+    return `<b>Необходимо заполнить данные ниже:</b>\n\nНазвание: ${title ?? 'Не указано'}\nОписание: ${description ?? 'Не указано'}\nТип викторины: ${mode == 'private' ? 'приватный' : 'публичный'}\n${mode == 'private' ? (key ? 'Ключ: ' + key : 'Ключ: Не указан') : ''}`;
+  } else if (message === 'createQuestion') {
+    const { title, answers } = data.question;
+    let text = `<b>Ваш вопрос:</b>\n\nТекст вопроса: ${title ?? 'Отсутсвует'}\n\nВарианты ответа:\n`;
+    for (let i = 0; i < answers.length; i++) {
+      text += `${i + 1}) ${answers[i].title}\nОтвет: ${answers[i].correct == true ? 'правильный' : 'не правильный'}\n`;
+    }
+    text +=
+      '<u><i>Чтобы отредактировать вариант ответа, нажмите на кнопку ниже с соответствующим ответом</i></u>';
+    return text;
+  } else if (message === 'createAnswer') {
+    return `<b>Ваш Ответ:</b>\n\nТекст Ответа: ${data.answer.title ? data.answer.title : 'Отсутсвует'}\n\n<u><i>Ниже представлена кнопка с целеным или красным цветом. Она обозначает правильность ответа, чтобы его изменить, нажмите на кнопку</i></u>`;
   }
 };
 //`<b>Название:</b> ${user.reminders.all[user.slider.thisI].title}\n<b>Описание:</b> ${user.reminders.all[user.slider.thisI].description}\n<b>Дата и время:</b> ${user.reminders.all[user.slider.thisI].date} ${user.reminders.all[user.slider.thisI].time}`
