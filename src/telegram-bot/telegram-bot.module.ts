@@ -8,6 +8,9 @@ import { DatabaseModule } from 'src/database/database.module';
 import { Base64Module } from 'src/base64/base64.module';
 import { BarcodeModule } from 'src/barcode/barcode.module';
 import { Quiz } from './items/quiz';
+import { Registration } from './items/registaration';
+import { ValidatorModule } from 'src/validator/validator.module';
+import { HashModule } from 'src/hash/hash.module';
 
 @Module({
   imports: [
@@ -18,8 +21,10 @@ import { Quiz } from './items/quiz';
     ConfModule,
     InlineKeyboards,
     Quiz,
+    ValidatorModule,
+    HashModule,
   ],
-  providers: [TBotService, InlineKeyboards, Quiz],
+  providers: [TBotService, InlineKeyboards, Quiz, Registration],
   exports: [TBotService, InlineKeyboards],
 })
 export class TBotModule {}

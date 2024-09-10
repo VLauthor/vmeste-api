@@ -6,7 +6,10 @@ import { CacheService } from 'src/cache/cache.service';
 import { DatabaseService } from 'src/database/database.service';
 import { BarcodeService } from 'src/barcode/barcode.service';
 import { Base64Service } from 'src/base64/base64.service';
+import { ValidatorService } from 'src/validator/validator.service';
 import { Quiz } from './items/quiz';
+import { Registration } from './items/registaration';
+import { HashService } from 'src/hash/hash.service';
 export declare class TBotService implements OnModuleInit {
     readonly cache: CacheService;
     ik: InlineKeyboards;
@@ -15,11 +18,14 @@ export declare class TBotService implements OnModuleInit {
     private bs64;
     private configService;
     private quiz;
+    private valid;
+    private registration;
+    private hash;
     private reactionMess;
     private editMess;
     private DDosList;
     bot: Bot;
-    constructor(cache: CacheService, ik: InlineKeyboards, db: DatabaseService, bc: BarcodeService, bs64: Base64Service, configService: ConfService, quiz: Quiz);
+    constructor(cache: CacheService, ik: InlineKeyboards, db: DatabaseService, bc: BarcodeService, bs64: Base64Service, configService: ConfService, quiz: Quiz, valid: ValidatorService, registration: Registration, hash: HashService);
     onModuleInit(): void;
     onStart(): void;
     private addListMessage;

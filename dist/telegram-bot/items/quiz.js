@@ -52,6 +52,7 @@ class Quiz {
             if (cache.getAllQuizzes().length === 0) {
                 cache.setQuizzes(await db.GetAllQuiz());
             }
+            console.log(1);
             const mess = await ctx.reply('Меню викторин', {
                 reply_markup: ik.keyboardQuiz(),
                 parse_mode: 'HTML',

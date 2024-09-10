@@ -24,13 +24,16 @@ const database_service_1 = require("../database/database.service");
 const class_1 = require("../objects/class");
 const barcode_service_1 = require("../barcode/barcode.service");
 const base64_service_1 = require("../base64/base64.service");
+const validator_service_1 = require("../validator/validator.service");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const string_1 = require("../string/string");
 const node_test_1 = require("node:test");
 const quiz_1 = require("./items/quiz");
+const registaration_1 = require("./items/registaration");
+const hash_service_1 = require("../hash/hash.service");
 let TBotService = class TBotService {
-    constructor(cache, ik, db, bc, bs64, configService, quiz) {
+    constructor(cache, ik, db, bc, bs64, configService, quiz, valid, registration, hash) {
         this.cache = cache;
         this.ik = ik;
         this.db = db;
@@ -38,6 +41,9 @@ let TBotService = class TBotService {
         this.bs64 = bs64;
         this.configService = configService;
         this.quiz = quiz;
+        this.valid = valid;
+        this.registration = registration;
+        this.hash = hash;
         this.DDosList = {};
         this.DDoSProtection = async (ctx, Next) => {
             const userId = ctx.from?.id;
@@ -64,13 +70,14 @@ let TBotService = class TBotService {
         this.reactionMess = new Map();
         this.editMess = new Map();
         quiz = new quiz_1.Quiz(cache, ik, db);
+        registration = new registaration_1.Registration(cache, ik, db, valid, hash);
     }
     onModuleInit() {
         this.onStart();
     }
     onStart() {
         this.bot.start();
-        this.bot.command('myid', (ctx) => ctx.reply(ctx.from.id.toString()));
+        this.bot.command('my', (ctx) => ctx.reply(String(ctx)));
         const main = new menu_1.Menu('root-menu')
             .text('Поздороваться!', (ctx) => ctx.reply('Привет!'))
             .row()
@@ -126,28 +133,7 @@ let TBotService = class TBotService {
             this.cache.updateBoolTG(code, true);
             return ctx.answerCallbackQuery('Успешная регистрация!');
         });
-        (0, node_test_1.todo)('buisness_logic');
-        this.bot.on('business_message', async (ctx, Next) => {
-            const message = ctx.businessMessage;
-            if (message.text == '/start') {
-                ctx.react('👀');
-                ctx.reply('на данное сообщение отвечает бот');
-            }
-            Next();
-        });
-        this.bot.on([
-            'business_message:voice',
-            'business_message:animation',
-            'business_message:video',
-            'business_message:sticker',
-        ], (ctx) => {
-            const msg = ctx.message;
-            console.log(msg);
-            ctx.reply('Ваше аудио/видео конетнт позже будет просмотрен', {});
-            ctx.reply('Ваше аудио/видео конетнт позже будет просмотрен', {
-                reply_parameters: { message_id: msg.message_id },
-            });
-        });
+        this.bot.use(this.registration.getComposer());
         this.bot.use(async (ctx, Next) => {
             if (ctx.message &&
                 ctx.message.text &&
@@ -157,7 +143,9 @@ let TBotService = class TBotService {
                 const user_id = await this.db.getUserIdByTelegramId(ctx.from.id);
                 console.log(user_id);
                 if (!user_id)
-                    return ctx.reply(string_1.message.notLog);
+                    return ctx.reply(string_1.message.notLog, {
+                        reply_markup: this.ik.buttonRegister(),
+                    });
                 const ui = await this.db.getUserInfo(user_id);
                 this.cache.setUsersTg(ctx.from.id, {
                     id_VL: user_id,
@@ -172,7 +160,6 @@ let TBotService = class TBotService {
             }
             Next();
         });
-        this.bot.use(this.quiz.getComposer());
         this.bot.use(this.quiz.getComposer());
         (0, node_test_1.todo)('test');
         this.bot.command('testkeyboard', (ctx) => {
@@ -1299,6 +1286,9 @@ exports.TBotService = TBotService = __decorate([
         barcode_service_1.BarcodeService,
         base64_service_1.Base64Service,
         configuration_service_1.ConfService,
-        quiz_1.Quiz])
+        quiz_1.Quiz,
+        validator_service_1.ValidatorService,
+        registaration_1.Registration,
+        hash_service_1.HashService])
 ], TBotService);
 //# sourceMappingURL=telegram-bot.service.js.map

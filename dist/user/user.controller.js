@@ -16,6 +16,8 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const user_dto_1 = require("./dto/user.dto");
+const swagger_1 = require("@nestjs/swagger");
+const joi_1 = require("joi");
 let UserController = class UserController {
     constructor(s) {
         this.s = s;
@@ -43,6 +45,9 @@ let UserController = class UserController {
     }
     updatePassword(dto) {
         return this.s.updatePassword(dto);
+    }
+    test() {
+        return 12;
     }
 };
 exports.UserController = UserController;
@@ -110,6 +115,14 @@ __decorate([
     __metadata("design:paramtypes", [user_dto_1.updatePasswordDto]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "updatePassword", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'test' }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: joi_1.number }),
+    (0, common_1.Get)('test'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "test", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

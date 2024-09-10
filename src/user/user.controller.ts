@@ -19,6 +19,9 @@ import {
   signinDto,
   updatePasswordDto,
 } from './dto/user.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { number, object } from 'joi';
+import { threadId } from 'worker_threads';
 
 @Controller('user')
 export class UserController {
@@ -63,6 +66,12 @@ export class UserController {
   @Put('password/update')
   updatePassword(@Query() dto: updatePasswordDto) {
     return this.s.updatePassword(dto);
+  }
+  @ApiOperation({ summary: 'test' })
+  @ApiResponse({ status: 200, type: number })
+  @Get('test')
+  test() {
+    return 12;
   }
   // @UsePipes(new ValidationPipe())
   // @Get('telegram/login')

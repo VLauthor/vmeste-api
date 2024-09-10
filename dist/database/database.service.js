@@ -54,11 +54,13 @@ let DatabaseService = class DatabaseService {
                 };
             }
             catch (e) {
+                console.log(e);
                 if (e.code && e.code === 'P2002') {
                     const fields = e.meta?.target;
                     return {
                         statusCode: common_1.HttpStatus.CONFLICT,
                         error: `Duplicate fields: ${fields.join(', ')}`,
+                        description: { fields: fields },
                     };
                 }
                 return {

@@ -7,11 +7,11 @@ export declare class UserController {
         statusCode: import("@nestjs/common").HttpStatus;
         data: {
             number: string;
+            nickname: string;
+            mail: string;
             last_name: string;
             first_name: string;
             patronomic: string;
-            mail: string;
-            nickname: string;
             gender: boolean;
             date_birthday: Date;
         };
@@ -35,4 +35,5 @@ export declare class UserController {
         message: string;
     }>;
     updatePassword(dto: updatePasswordDto): Promise<import("../objects/interfaces").Response>;
+    test(): number;
 }

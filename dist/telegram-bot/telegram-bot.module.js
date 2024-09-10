@@ -16,6 +16,9 @@ const database_module_1 = require("../database/database.module");
 const base64_module_1 = require("../base64/base64.module");
 const barcode_module_1 = require("../barcode/barcode.module");
 const quiz_1 = require("./items/quiz");
+const registaration_1 = require("./items/registaration");
+const validator_module_1 = require("../validator/validator.module");
+const hash_module_1 = require("../hash/hash.module");
 let TBotModule = class TBotModule {
 };
 exports.TBotModule = TBotModule;
@@ -29,8 +32,10 @@ exports.TBotModule = TBotModule = __decorate([
             configuration_module_1.ConfModule,
             inlinekeyboard_1.InlineKeyboards,
             quiz_1.Quiz,
+            validator_module_1.ValidatorModule,
+            hash_module_1.HashModule,
         ],
-        providers: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards, quiz_1.Quiz],
+        providers: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards, quiz_1.Quiz, registaration_1.Registration],
         exports: [telegram_bot_service_1.TBotService, inlinekeyboard_1.InlineKeyboards],
     })
 ], TBotModule);

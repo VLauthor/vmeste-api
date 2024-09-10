@@ -36,6 +36,7 @@ export declare class InlineKeyboards {
         delete: boolean;
     }): InlineKeyboard;
     boxSliderQuiz(tag: string, id: number): InlineKeyboard;
+    buttonRegister(): InlineKeyboard;
     keyboardQuiz(): InlineKeyboard;
     createQuiz(data: Quiz): InlineKeyboard;
     keyboardAddQuestion(data: Questions[]): InlineKeyboard;

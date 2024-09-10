@@ -34,11 +34,11 @@ export declare class UserService {
         statusCode: HttpStatus;
         data: {
             number: string;
+            nickname: string;
+            mail: string;
             last_name: string;
             first_name: string;
             patronomic: string;
-            mail: string;
-            nickname: string;
             gender: boolean;
             date_birthday: Date;
         };

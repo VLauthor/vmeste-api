@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CheckWidthTime = exports.Random = exports.DataTelegramKey = exports.UserTelegram = void 0;
+exports.formatDate = exports.CheckWidthTime = exports.Random = exports.DataTelegramKey = exports.UserTelegram = void 0;
 const date_fns_1 = require("date-fns");
 class UserTelegram {
     constructor(id, first_name, last_name, username) {
@@ -71,4 +71,24 @@ class CheckWidthTime {
     }
 }
 exports.CheckWidthTime = CheckWidthTime;
+class formatDate {
+    constructor(date) {
+        this.returnViewDate = () => {
+            return `${this.day !== null ? this.day : 'дд'}.${this.month !== null ? this.month : 'мм'}.${this.year !== null ? this.year : 'гггг'}`;
+        };
+        this.returnDBDate = () => {
+            return new Date(`${this.year}-${this.month}-${this.day}`).toISOString();
+        };
+        this.checkCorrectDate = () => {
+            if (this.year === null || this.month === null || this.day === null)
+                return false;
+            return true;
+        };
+        const { year, month, day } = date;
+        this.year = year;
+        this.month = month;
+        this.day = day;
+    }
+}
+exports.formatDate = formatDate;
 //# sourceMappingURL=class.js.map

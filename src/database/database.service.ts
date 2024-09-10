@@ -60,11 +60,13 @@ export class DatabaseService {
         message: user_id.user_id.toString(),
       };
     } catch (e: any) {
+      console.log(e);
       if (e.code && e.code === 'P2002') {
         const fields = e.meta?.target;
         return {
           statusCode: HttpStatus.CONFLICT,
           error: `Duplicate fields: ${fields.join(', ')}`,
+          description: { fields: fields },
         };
       }
       return {

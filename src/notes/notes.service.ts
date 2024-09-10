@@ -1,6 +1,7 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { notesAll, notesDelete, notesNew } from './notes.dto';
+import { fdatasyncSync } from 'node:fs';
 
 @Injectable()
 export class NotesService {
@@ -37,3 +38,7 @@ export class NotesService {
     return { statusCode: HttpStatus.OK, notes: notes };
   };
 }
+
+const diiedwnf = (xd: string) => {
+  console.log(xd);
+};

@@ -12,7 +12,7 @@ model Users {
   last_name     String
   first_name    String
   patronomic    String?
-  number        String           @unique
+  number        String?           @unique
   mail          String           @unique
   nickname      String           @unique
   gender        Boolean          @default(true)
@@ -112,3 +112,4 @@ model UserAnswors {
   question Questions @relation(fields: [question_id], references: [question_id])
   answers Answers @relation(fields: [answer_id], references: [answer_id])
 }
+

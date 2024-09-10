@@ -1,3 +1,5 @@
+import { Context } from 'grammy';
+
 export interface ResultCreateUser {
   code: number;
   user?: object;
@@ -8,6 +10,7 @@ export interface Mess {
   status?: false | 'expect' | true;
   time?: number;
   text?: string;
+  ctx?: Context;
 }
 export interface User {
   user_id?: number;
@@ -16,8 +19,10 @@ export interface User {
   patronomic?: string;
   mail?: string;
   nickname?: string;
+  number?: string;
   gender?: boolean;
   date_birthday?: string;
+  date?: CustomDate;
   password_hash?: string;
 }
 
@@ -72,6 +77,10 @@ export interface DataMessage {
     answer?: number;
   };
   answer?: Answers;
+  formParams?: {
+    title: string;
+    format: string;
+  };
 }
 
 export interface Reminder {
@@ -125,6 +134,9 @@ export interface Response {
   statusCode: number;
   error?: string;
   message?: string;
+  description?: {
+    fields?: Array<'nickname' | 'mail' | 'number'>;
+  };
 }
 export interface TGUser {
   id: number;
@@ -228,4 +240,10 @@ export interface AnswersBD {
   answer_id: 1;
   title: 'Омы';
   correct: true;
+}
+
+export interface CustomDate {
+  year: number | null;
+  month: number | null;
+  day: number | null;
 }

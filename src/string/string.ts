@@ -1,5 +1,16 @@
 import { DataMessage, monthItem } from 'src/objects/interfaces';
 
+export const fields = (field: 'nickname' | 'mail' | 'number') => {
+  switch (field) {
+    case 'nickname':
+      return 'никнейм';
+    case 'mail':
+      return 'почта';
+    case 'number':
+      return 'номер';
+  }
+};
+
 export const message = {
   barcode: 'Ответь на данное сообщение с текстом для конвертации в штрих-код',
   qrcode: 'Ответь на данное сообщение с текстом для конвертации в qr-код',
@@ -7,12 +18,13 @@ export const message = {
   remindersCreateStepOne:
     'Супер, для создания напоминания нужно заполнить три поля.\nДавайте скорее начнем!\n\nВведите название напоминания...\n\n<i><u>Ваш ответ должен быть "ответом" на данное сообщение</u></i>',
   notLog:
-    'Вы не авторизированы в нашей системе, это можно сделать в мобильном приложении VMeste',
+    'Вы не авторизированы в нашей системе, это можно сделать нажав на кнопку ниже и заполнил форму.',
   createNameQuiz: 'Отправьте ответом на данное сообщение название викторины',
   createDescriptionQuiz:
     'Отправьте ответом на данное сообщение описание викторины',
   createNameQuestion: 'Отправьте ответом на данное сообщение текст опроса',
   createNameAnswer: 'Отправьте ответом на данное сообщение текст ответа',
+  responseNote: '\n<i>Ваше сообщение долюжно быть ответом на данное.</i>',
 };
 type messageCode =
   | 'reminders'
@@ -22,6 +34,7 @@ type messageCode =
   | 'createQuiz'
   | 'createQuestion'
   | 'createAnswer'
+  | 'sendInputForm'
   | null;
 export const messageParams = (message: messageCode, data: DataMessage) => {
   if (message == 'reminders') {
@@ -45,6 +58,9 @@ export const messageParams = (message: messageCode, data: DataMessage) => {
     return text;
   } else if (message === 'createAnswer') {
     return `<b>Ваш Ответ:</b>\n\nТекст Ответа: ${data.answer.title ? data.answer.title : 'Отсутсвует'}\n\n<u><i>Ниже представлена кнопка с целеным или красным цветом. Она обозначает правильность ответа, чтобы его изменить, нажмите на кнопку</i></u>`;
+  } else if (message === 'sendInputForm') {
+    const formParams = data.formParams;
+    return `Пришлите мне ваши данные: ${formParams.title}\nВ формате: ${formParams.format}`;
   }
 };
 //`<b>Название:</b> ${user.reminders.all[user.slider.thisI].title}\n<b>Описание:</b> ${user.reminders.all[user.slider.thisI].description}\n<b>Дата и время:</b> ${user.reminders.all[user.slider.thisI].date} ${user.reminders.all[user.slider.thisI].time}`
@@ -72,3 +88,9 @@ export const months: Array<monthItem> = [
 //   }
 //   return arrayYear;
 // };
+
+// ФИО
+// почта
+// телефон
+// дата рождения
+// пароль

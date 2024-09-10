@@ -1,3 +1,4 @@
+import { CustomDate } from './interfaces';
 export declare class UserTelegram {
     user_tg_id: number;
     first_name: string;
@@ -27,4 +28,13 @@ export declare class CheckWidthTime {
     private date;
     constructor(date: Date);
     minutes: (time: number) => boolean;
+}
+export declare class formatDate {
+    private year;
+    private month;
+    private day;
+    constructor(date: CustomDate);
+    returnViewDate: () => string;
+    returnDBDate: () => string;
+    checkCorrectDate: () => boolean;
 }

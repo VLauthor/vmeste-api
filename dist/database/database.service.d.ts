@@ -10,7 +10,7 @@ export declare class DatabaseService {
         last_name: string;
         first_name: string;
         patronomic: string | null;
-        number: string;
+        number: string | null;
         mail: string;
         nickname: string;
         gender: boolean;
@@ -48,18 +48,18 @@ export declare class DatabaseService {
     getUserIdBySession: (session: string) => Promise<number | false>;
     getAllUserNotes: (userId: number) => Promise<{
         name: string;
-        notes_id: number;
         description: string;
+        notes_id: number;
     }[]>;
     postNoteUser: (userId: number, name: string, description: string) => Promise<void>;
     deleteNoteUser: (id: number) => Promise<void>;
     getUserInfo: (id: number) => Promise<{
         number: string;
+        nickname: string;
+        mail: string;
         last_name: string;
         first_name: string;
         patronomic: string;
-        mail: string;
-        nickname: string;
         gender: boolean;
         date_birthday: Date;
     }>;
@@ -106,7 +106,7 @@ export declare class DatabaseService {
             last_name: string;
             first_name: string;
             patronomic: string | null;
-            number: string;
+            number: string | null;
             mail: string;
             nickname: string;
             gender: boolean;
@@ -123,8 +123,8 @@ export declare class DatabaseService {
     addQuiz: (id: number, quiz: Quiz, questions: Questions[]) => Promise<void>;
     GetAllQuiz: () => Promise<{
         private: boolean;
-        key: string;
         description: string;
+        key: string;
         quiz_id: number;
         title: string;
         question: {

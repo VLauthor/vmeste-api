@@ -5,6 +5,7 @@ import {
   ChacheTelegramLogin,
   QuizBD,
   TelegramUserData,
+  User,
 } from 'src/objects/interfaces';
 @Injectable()
 export class CacheService {
@@ -13,6 +14,7 @@ export class CacheService {
     number,
     TelegramUserData
   >();
+  private userFormByReg: Map<number, User> = new Map<number, User>();
   private loginTG: Map<string, ChacheTelegramLogin> = new Map();
   private cacheSocket: Map<string, string> = new Map();
   private arrayQuizzes: Array<QuizBD> = [];

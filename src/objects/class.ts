@@ -1,4 +1,6 @@
 import { differenceInMinutes } from 'date-fns';
+import { CustomDate } from './interfaces';
+import { ConfService } from 'src/config/configuration.service';
 export class UserTelegram {
   public user_tg_id: number;
   public first_name: string;
@@ -75,5 +77,31 @@ export class CheckWidthTime {
     newDate.setHours(newDate.getHours() + 3);
     const difference = Math.abs(differenceInMinutes(newDate, this.date));
     return difference <= time;
+  };
+}
+
+export class formatDate {
+  private year: number | null;
+  private month: number | null;
+  private day: number | null;
+
+  constructor(date: CustomDate) {
+    const { year, month, day } = date;
+    this.year = year;
+    this.month = month;
+    this.day = day;
+  }
+  public returnViewDate = (): string => {
+    return `${this.day !== null ? this.day : 'дд'}.${this.month !== null ? this.month : 'мм'}.${this.year !== null ? this.year : 'гггг'}`;
+  };
+
+  public returnDBDate = (): string => {
+    return new Date(`${this.year}-${this.month}-${this.day}`).toISOString();
+  };
+
+  public checkCorrectDate = (): boolean => {
+    if (this.year === null || this.month === null || this.day === null)
+      return false;
+    return true;
   };
 }

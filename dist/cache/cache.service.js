@@ -12,6 +12,7 @@ let CacheService = class CacheService {
     constructor() {
         this.cacheTG = new Map();
         this.usersTg = new Map();
+        this.userFormByReg = new Map();
         this.loginTG = new Map();
         this.cacheSocket = new Map();
         this.arrayQuizzes = [];

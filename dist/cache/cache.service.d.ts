@@ -2,6 +2,7 @@ import { CacheTelegram, ChacheTelegramLogin, QuizBD, TelegramUserData } from 'sr
 export declare class CacheService {
     private cacheTG;
     private usersTg;
+    private userFormByReg;
     private loginTG;
     private cacheSocket;
     private arrayQuizzes;

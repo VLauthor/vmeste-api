@@ -19,7 +19,7 @@ export class signinDto {
   @IsString()
   nickname: string;
   @IsString()
-  number: string;
+  number?: string;
   @Transform(({ value }) => value === '1' || value === 'true')
   @Transform(({ value }) => value === '0' || value === 'false')
   @IsBoolean()

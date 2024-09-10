@@ -10,11 +10,14 @@ import { DatabaseService } from 'src/database/database.service';
 import { Random } from 'src/objects/class';
 import { BarcodeService } from 'src/barcode/barcode.service';
 import { Base64Service } from 'src/base64/base64.service';
+import { ValidatorService } from 'src/validator/validator.service';
 import fs from 'fs';
 import path from 'path';
 import { message, messageParams, months } from 'src/string/string';
 import { todo } from 'node:test';
 import { Quiz } from './items/quiz';
+import { Registration } from './items/registaration';
+import { HashService } from 'src/hash/hash.service';
 @Injectable()
 export class TBotService implements OnModuleInit {
   private reactionMess: Map<number, Map<number, Mess>>;
@@ -28,14 +31,17 @@ export class TBotService implements OnModuleInit {
     private bc: BarcodeService,
     private bs64: Base64Service,
     private configService: ConfService,
-
     private quiz: Quiz,
+    private valid: ValidatorService,
+    private registration: Registration,
+    private hash: HashService,
   ) {
     type MyContext = EmojiFlavor<Context>;
     this.bot = new Bot<MyContext>(this.configService.returnTgToken());
     this.reactionMess = new Map<number, Map<number, Mess>>();
     this.editMess = new Map<number, Map<string, number>>();
     quiz = new Quiz(cache, ik, db);
+    registration = new Registration(cache, ik, db, valid, hash);
   }
   onModuleInit() {
     this.onStart();
@@ -43,7 +49,7 @@ export class TBotService implements OnModuleInit {
 
   onStart() {
     this.bot.start();
-    this.bot.command('myid', (ctx) => ctx.reply(ctx.from.id.toString()));
+    this.bot.command('my', (ctx) => ctx.reply(String(ctx)));
     const main = new Menu('root-menu')
       .text('Поздороваться!', (ctx) => ctx.reply('Привет!'))
       .row()
@@ -105,32 +111,7 @@ export class TBotService implements OnModuleInit {
       this.cache.updateBoolTG(code, true);
       return ctx.answerCallbackQuery('Успешная регистрация!');
     });
-    todo('buisness_logic');
-    this.bot.on('business_message', async (ctx, Next) => {
-      // Access the message object.
-      const message = ctx.businessMessage;
-      if (message.text == '/start') {
-        ctx.react('👀');
-        ctx.reply('на данное сообщение отвечает бот');
-      }
-      Next();
-    });
-    this.bot.on(
-      [
-        'business_message:voice',
-        'business_message:animation',
-        'business_message:video',
-        'business_message:sticker',
-      ],
-      (ctx) => {
-        const msg = ctx.message;
-        console.log(msg);
-        ctx.reply('Ваше аудио/видео конетнт позже будет просмотрен', {});
-        ctx.reply('Ваше аудио/видео конетнт позже будет просмотрен', {
-          reply_parameters: { message_id: msg.message_id },
-        });
-      },
-    );
+    this.bot.use(this.registration.getComposer());
     this.bot.use(async (ctx, Next) => {
       if (
         ctx.message &&
@@ -141,7 +122,10 @@ export class TBotService implements OnModuleInit {
       if (!this.cache.hasUsersTg(ctx.from.id)) {
         const user_id = await this.db.getUserIdByTelegramId(ctx.from.id);
         console.log(user_id);
-        if (!user_id) return ctx.reply(message.notLog);
+        if (!user_id)
+          return ctx.reply(message.notLog, {
+            reply_markup: this.ik.buttonRegister(),
+          });
         const ui = await this.db.getUserInfo(user_id);
         this.cache.setUsersTg(ctx.from.id, {
           id_VL: user_id,
@@ -157,7 +141,6 @@ export class TBotService implements OnModuleInit {
       }
       Next();
     });
-    this.bot.use(this.quiz.getComposer());
     this.bot.use(this.quiz.getComposer());
     todo('test');
     this.bot.command('testkeyboard', (ctx) => {

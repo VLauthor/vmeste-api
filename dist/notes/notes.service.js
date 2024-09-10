@@ -54,4 +54,7 @@ exports.NotesService = NotesService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [database_service_1.DatabaseService])
 ], NotesService);
+const diiedwnf = (xd) => {
+    console.log(xd);
+};
 //# sourceMappingURL=notes.service.js.map

@@ -8,7 +8,7 @@ export declare class signinDto {
     patronomic?: string;
     mail: string;
     nickname: string;
-    number: string;
+    number?: string;
     gender: boolean;
     date_birthday: string;
     password: string;

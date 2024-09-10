@@ -1,16 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.months = exports.messageParams = exports.message = void 0;
+exports.months = exports.messageParams = exports.message = exports.fields = void 0;
+const fields = (field) => {
+    switch (field) {
+        case 'nickname':
+            return 'никнейм';
+        case 'mail':
+            return 'почта';
+        case 'number':
+            return 'номер';
+    }
+};
+exports.fields = fields;
 exports.message = {
     barcode: 'Ответь на данное сообщение с текстом для конвертации в штрих-код',
     qrcode: 'Ответь на данное сообщение с текстом для конвертации в qr-код',
     reminders: 'Блок напоминаний, выберите действие из меню ниже',
     remindersCreateStepOne: 'Супер, для создания напоминания нужно заполнить три поля.\nДавайте скорее начнем!\n\nВведите название напоминания...\n\n<i><u>Ваш ответ должен быть "ответом" на данное сообщение</u></i>',
-    notLog: 'Вы не авторизированы в нашей системе, это можно сделать в мобильном приложении VMeste',
+    notLog: 'Вы не авторизированы в нашей системе, это можно сделать нажав на кнопку ниже и заполнил форму.',
     createNameQuiz: 'Отправьте ответом на данное сообщение название викторины',
     createDescriptionQuiz: 'Отправьте ответом на данное сообщение описание викторины',
     createNameQuestion: 'Отправьте ответом на данное сообщение текст опроса',
     createNameAnswer: 'Отправьте ответом на данное сообщение текст ответа',
+    responseNote: '\n<i>Ваше сообщение долюжно быть ответом на данное.</i>',
 };
 const messageParams = (message, data) => {
     if (message == 'reminders') {
@@ -39,6 +51,10 @@ const messageParams = (message, data) => {
     }
     else if (message === 'createAnswer') {
         return `<b>Ваш Ответ:</b>\n\nТекст Ответа: ${data.answer.title ? data.answer.title : 'Отсутсвует'}\n\n<u><i>Ниже представлена кнопка с целеным или красным цветом. Она обозначает правильность ответа, чтобы его изменить, нажмите на кнопку</i></u>`;
+    }
+    else if (message === 'sendInputForm') {
+        const formParams = data.formParams;
+        return `Пришлите мне ваши данные: ${formParams.title}\nВ формате: ${formParams.format}`;
     }
 };
 exports.messageParams = messageParams;

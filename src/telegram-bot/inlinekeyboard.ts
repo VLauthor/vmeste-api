@@ -224,6 +224,9 @@ export class InlineKeyboards {
       .text('->', `${tag}-slider-next`)
       .row(this.closeButton(tag));
   }
+  buttonRegister() {
+    return new InlineKeyboard().text('Зарегистрироваться', 'startRegistration');
+  }
   keyboardQuiz() {
     return new InlineKeyboard()
       .text('Создать квиз', 'createQuiz')
