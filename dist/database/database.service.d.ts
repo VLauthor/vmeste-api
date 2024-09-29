@@ -1,6 +1,6 @@
-import { CacheTelegram, objectUser, Questions, Quiz, Reminder, Response } from 'src/objects/interfaces';
+import { CacheTelegram, DatabaseResult, objectUser, Questions, Quiz, Reminder } from 'src/objects/interfaces';
 import { PrismaService } from '../prisma/prisma.service';
-import { signinDto } from 'src/user/dto/user.dto';
+import { signInDto } from 'src/auth/auth.dto';
 export declare class DatabaseService {
     private p;
     private h;
@@ -10,17 +10,19 @@ export declare class DatabaseService {
         last_name: string;
         first_name: string;
         patronomic: string | null;
-        number: string | null;
         mail: string;
         nickname: string;
         gender: boolean;
+        role_id: number;
+        verified: boolean;
+        date_registration: Date;
         date_birthday: Date;
         password_hash: string;
     }[]>;
     returnPasswordByNickname: (nickname: string) => Promise<objectUser>;
     returnPasswordByMail: (mail: string) => Promise<objectUser>;
-    newUser: (user: signinDto) => Promise<Response>;
-    createSession: (session: string, userId: any) => Promise<void>;
+    returnRoleName: (id: number) => Promise<string>;
+    newUser: (data: signInDto) => Promise<DatabaseResult>;
     returnUserIdByMail: (mail: string) => Promise<number>;
     addCodeMail: (userId: number, key: string) => Promise<void>;
     checkMail: (mail: string) => Promise<number>;
@@ -28,8 +30,6 @@ export declare class DatabaseService {
     updatePassword: (userId: number, password_hash: string) => Promise<void>;
     checkRegisterNickname: (nick: string) => Promise<number>;
     checkRegisterMail: (mail: string) => Promise<number>;
-    checkRegisterPhome: (phone: string) => Promise<number>;
-    getIdBySession: (session: string) => Promise<number>;
     checkUserTgById: (id: number) => Promise<boolean>;
     checkTelegramVerifyById: (id: number) => Promise<boolean>;
     addTelegramVerify: (id: number, data: CacheTelegram) => Promise<{
@@ -45,22 +45,20 @@ export declare class DatabaseService {
         bio: string | null;
     }>;
     getUserIdByTelegramId: (id: number) => Promise<number | false>;
-    getUserIdBySession: (session: string) => Promise<number | false>;
     getAllUserNotes: (userId: number) => Promise<{
-        name: string;
         description: string;
+        name: string;
         notes_id: number;
     }[]>;
     postNoteUser: (userId: number, name: string, description: string) => Promise<void>;
     deleteNoteUser: (id: number) => Promise<void>;
     getUserInfo: (id: number) => Promise<{
-        number: string;
         nickname: string;
         mail: string;
+        gender: boolean;
         last_name: string;
         first_name: string;
         patronomic: string;
-        gender: boolean;
         date_birthday: Date;
     }>;
     getAllRemindersCount: (id: number) => Promise<number>;
@@ -106,10 +104,12 @@ export declare class DatabaseService {
             last_name: string;
             first_name: string;
             patronomic: string | null;
-            number: string | null;
             mail: string;
             nickname: string;
             gender: boolean;
+            role_id: number;
+            verified: boolean;
+            date_registration: Date;
             date_birthday: Date;
             password_hash: string;
         };
@@ -123,10 +123,10 @@ export declare class DatabaseService {
     addQuiz: (id: number, quiz: Quiz, questions: Questions[]) => Promise<void>;
     GetAllQuiz: () => Promise<{
         private: boolean;
+        title: string;
         description: string;
         key: string;
         quiz_id: number;
-        title: string;
         question: {
             answers: {
                 title: string;

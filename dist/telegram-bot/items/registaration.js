@@ -6,7 +6,6 @@ const menu_1 = require("@grammyjs/menu");
 const string_1 = require("../../string/string");
 const validator_1 = require("validator");
 const class_1 = require("../../objects/class");
-const common_1 = require("@nestjs/common");
 const reg = new grammy_1.Composer();
 let cache;
 let ik;
@@ -124,28 +123,6 @@ class Registration {
                 const passwordHash = await hash.createHash(password_hash);
                 date.month++;
                 const formater = new class_1.formatDate(date);
-                const resultAddUser = await db.newUser({
-                    last_name: last_name,
-                    first_name: first_name,
-                    patronomic: patronomic ? patronomic : '',
-                    mail: mail,
-                    nickname: nickname,
-                    gender: gender,
-                    date_birthday: formater.returnDBDate(),
-                    password: passwordHash,
-                });
-                if (resultAddUser.statusCode != common_1.HttpStatus.CREATED) {
-                    console.log(resultAddUser);
-                    if (resultAddUser.statusCode === common_1.HttpStatus.CONFLICT) {
-                        let text = 'Ошибка создания пользователя.\nДанные следующих полей уже зарегистрированы:';
-                        for (const item of resultAddUser.description.fields)
-                            text += ` ${(0, string_1.fields)(item)}`;
-                        return this.sendWarning(ctx, text, 10);
-                    }
-                    return this.sendWarning(ctx, 'Ошибка создания пользователя', 3);
-                }
-                else {
-                }
             })
                 .row()
                 .text('Фамилия Имя Отчество', (ctx) => this.sendInputForm(ctx, 'ФИО', 'Фамилия Имя Отчество'))

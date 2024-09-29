@@ -31,16 +31,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailService = void 0;
+const jsx_runtime_1 = require("react/jsx-runtime");
 const common_1 = require("@nestjs/common");
 const configuration_service_1 = require("../config/configuration.service");
 const nodemailer = __importStar(require("nodemailer"));
+const render_1 = require("@react-email/render");
+const CodeVerified_1 = require("./templates/CodeVerified");
 const path = require('path');
-const ejs_1 = __importDefault(require("ejs"));
 let MailService = class MailService {
     constructor(config) {
         this.config = config;
@@ -57,45 +56,15 @@ let MailService = class MailService {
         }, {
             from: `Angelica VL <${this.config.returnMailHostUserConfig()}> `,
         });
-        this.send = async (message) => {
-            const result = await new Promise((resolve, reject) => {
-                this.transporter.sendMail(message, (err) => {
-                    if (err) {
-                        console.log(err);
-                        return reject({
-                            statusCode: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
-                            error: 'mail could not be sent',
-                        });
-                    }
-                    return resolve({ statusCode: common_1.HttpStatus.CREATED, data: 'email sent' });
-                });
-            });
-            return result;
-        };
         this.sendCode = async (mail, code) => {
-            const logoPath = path.join(__dirname, '../../public/image/logo.png');
-            const mailPath = path.join(__dirname, '../../public/views/mail.ejs');
-            const html = await ejs_1.default.renderFile(mailPath, {
-                c1: code[0],
-                c2: code[1],
-                c3: code[2],
-                c4: code[3],
-                c5: code[4],
-                c6: code[5],
-            });
-            const image = {
-                filename: 'image.png',
-                path: logoPath,
-                cid: 'unique@image.cid',
-            };
+            const emailHtml = await (0, render_1.render)((0, jsx_runtime_1.jsx)(CodeVerified_1.CodeVerified, { code: code }));
             const message = {
                 from: `Anjelica VL < ${this.config.returnMailHostUserConfig()}> `,
                 to: mail,
                 subject: 'Код восстановления пароля',
-                html: html,
-                attachments: [image],
+                html: emailHtml,
             };
-            return await this.send(message);
+            await this.transporter.sendMail(message);
         };
     }
 };

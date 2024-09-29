@@ -1,16 +1,18 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   CacheTelegram,
+  DatabaseResult,
   objectUser,
+  Payload,
   Questions,
   Quiz,
   Reminder,
-  Response,
 } from 'src/objects/interfaces';
 import { PrismaService } from '../prisma/prisma.service';
-import { signinDto } from 'src/user/dto/user.dto';
+import { signInDto } from 'src/auth/auth.dto';
 import { HashService } from '../hash/hash.service';
 import { title } from 'process';
+import { message } from 'src/string/string';
 @Injectable()
 export class DatabaseService {
   private p: PrismaService;
@@ -38,55 +40,58 @@ export class DatabaseService {
     });
     return result;
   };
-  public newUser = async (user: signinDto): Promise<Response> => {
+  public returnRoleName = async (id: number): Promise<string> => {
+    const role = await this.p.role.findUnique({
+      where: { id: id },
+      select: { role: true },
+    });
+    return role.role;
+  };
+  public newUser = async (data: signInDto): Promise<DatabaseResult> => {
     try {
-      const user_id = await this.p.users.create({
+      const initials = data.initials.split(' ');
+      const userCreate = await this.p.users.create({
         data: {
-          last_name: user.last_name,
-          first_name: user.first_name,
-          patronomic: user.patronomic,
-          number: user.number,
-          mail: user.mail,
-          nickname: user.nickname,
-          gender: user.gender,
-          date_birthday: user.date_birthday,
-          password_hash: user.password,
+          last_name: initials[0],
+          first_name: initials[1],
+          patronomic: initials[2] === undefined ? null : initials[2],
+          mail: data.email,
+          nickname: data.nickname,
+          gender: data.gender,
+          date_birthday: new Date(data.date),
+          password_hash: data.password,
         },
-        select: { user_id: true },
+        select: { user_id: true, role: { select: { role: true } } },
       });
+      console.log(userCreate);
 
+      const payload: Payload = {
+        id: userCreate.user_id,
+        role: userCreate.role.role,
+      };
       return {
-        statusCode: HttpStatus.CREATED,
-        message: user_id.user_id.toString(),
+        accept: {
+          data: {
+            payload: payload,
+          },
+          message: 'Успешная авторизация',
+        },
       };
     } catch (e: any) {
       console.log(e);
+
       if (e.code && e.code === 'P2002') {
         const fields = e.meta?.target;
         return {
-          statusCode: HttpStatus.CONFLICT,
-          error: `Duplicate fields: ${fields.join(', ')}`,
-          description: { fields: fields },
+          error: {
+            message: `Данные из следующих полей уже зарегистрированы: ${fields.join(', ')}`,
+          },
         };
       }
       return {
-        statusCode: HttpStatus.PRECONDITION_FAILED,
-        error: 'An unexpected error',
+        error: { message: 'An unexpected error' },
       };
     }
-  };
-  public createSession = async (session: string, userId) => {
-    const currentTime = new Date();
-    const futureTime = new Date(
-      currentTime.setHours(currentTime.getHours() + 3),
-    );
-    await this.p.sessions.create({
-      data: {
-        session_id: session,
-        user_id: userId,
-        session_create: futureTime,
-      },
-    });
   };
   public returnUserIdByMail = async (mail: string) => {
     const userId = await this.p.users.findUnique({
@@ -135,16 +140,6 @@ export class DatabaseService {
   public checkRegisterMail = async (mail: string) => {
     return await this.p.users.count({ where: { mail: mail } });
   };
-  public checkRegisterPhome = async (phone: string) => {
-    return await this.p.users.count({ where: { number: phone } });
-  };
-  public getIdBySession = async (session: string): Promise<number> => {
-    const id = await this.p.sessions.findUnique({
-      where: { session_id: session },
-    });
-    if (id) return id.user_id;
-    return null;
-  };
   public checkUserTgById = async (id: number): Promise<boolean> => {
     return (await this.p.telegram_Users.count({ where: { user_id: id } })) != 0
       ? true
@@ -180,16 +175,6 @@ export class DatabaseService {
     if (!userId) return false;
     return userId.user_id;
   };
-  public getUserIdBySession = async (
-    session: string,
-  ): Promise<number | false> => {
-    const user_id = await this.p.sessions.findUnique({
-      where: { session_id: session },
-      select: { user_id: true },
-    });
-    if (!user_id) return false;
-    return user_id.user_id;
-  };
   public getAllUserNotes = async (userId: number) => {
     return await this.p.notes.findMany({
       where: { user_id: userId },
@@ -215,7 +200,6 @@ export class DatabaseService {
         last_name: true,
         first_name: true,
         patronomic: true,
-        number: true,
         mail: true,
         nickname: true,
         gender: true,

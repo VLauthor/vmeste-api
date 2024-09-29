@@ -15,6 +15,7 @@ const mail_module_1 = require("../mail/mail.module");
 const telegram_bot_module_1 = require("../telegram-bot/telegram-bot.module");
 const user_controller_1 = require("./user.controller");
 const user_service_1 = require("./user.service");
+const tokens_module_1 = require("../tokens/tokens.module");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -26,6 +27,7 @@ exports.UserModule = UserModule = __decorate([
             hash_module_1.HashModule,
             mail_module_1.MailModule,
             telegram_bot_module_1.TBotModule,
+            tokens_module_1.TokensModule,
         ],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService],

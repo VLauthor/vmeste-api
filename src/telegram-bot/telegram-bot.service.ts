@@ -135,7 +135,6 @@ export class TBotService implements OnModuleInit {
           mail: ui.mail,
           nickname: ui.nickname,
           date_birthday: ui.date_birthday,
-          number: ui.number,
         });
         // return ctx.reply(message.notLog);
       }
@@ -1145,7 +1144,6 @@ export class TBotService implements OnModuleInit {
       const str = await rand.generateString();
       const from = ctx.update.callback_query.from;
       const id = await this.db.getUserIdByTelegramId(from.id);
-      await this.db.createSession(str, id);
       this.cache.setLoginTG(code, { bool: true, session: str }, 2);
       return ctx.answerCallbackQuery('Успешная авторизация!');
     });
@@ -1422,5 +1420,12 @@ export class TBotService implements OnModuleInit {
   }
   public returnBot() {
     return this.bot;
+  }
+}
+
+class XD {
+  private xd: string;
+  constructor(xd: string) {
+    this.xd = xd;
   }
 }

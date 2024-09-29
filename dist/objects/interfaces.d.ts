@@ -23,6 +23,7 @@ export interface User {
     date_birthday?: string;
     date?: CustomDate;
     password_hash?: string;
+    role?: string;
 }
 export interface Quiz {
     title?: string;
@@ -119,13 +120,26 @@ export interface objectUser {
     gender?: string;
     date_birthday?: Date;
     password_hash?: string;
+    role?: string;
 }
-export interface Response {
+export interface ResponseInt {
     statusCode: number;
     error?: string;
     message?: string;
     description?: {
         fields?: Array<'nickname' | 'mail' | 'number'>;
+    };
+}
+export interface DatabaseResult {
+    accept?: {
+        data?: {
+            user?: User;
+            payload?: Payload;
+        };
+        message: string;
+    };
+    error?: {
+        message: string;
     };
 }
 export interface TGUser {
@@ -168,7 +182,6 @@ export interface TelegramUserData {
     mail: string;
     nickname: string;
     date_birthday: Date;
-    number: string;
     reminders?: {
         all?: Array<Reminder>;
         createReminder?: Reminder;
@@ -228,4 +241,8 @@ export interface CustomDate {
     year: number | null;
     month: number | null;
     day: number | null;
+}
+export interface Payload {
+    id: number;
+    role?: string;
 }

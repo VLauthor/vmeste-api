@@ -6,6 +6,7 @@ import { MailModule } from 'src/mail/mail.module';
 import { TBotModule } from 'src/telegram-bot/telegram-bot.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { TokensModule } from 'src/tokens/tokens.module';
 @Module({
   imports: [
     DatabaseModule,
@@ -13,6 +14,7 @@ import { UserService } from './user.service';
     HashModule,
     MailModule,
     TBotModule,
+    TokensModule,
   ],
   controllers: [UserController],
   providers: [UserService],

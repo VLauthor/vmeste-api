@@ -28,8 +28,12 @@ let ValidatorService = class ValidatorService {
                 return false;
             return /^[a-zA-Z]+$/.test(nick);
         };
-        this.date = (nick) => {
-            return validator_1.default.isDate(nick);
+        this.date = (date) => {
+            if (!validator_1.default.isDate(date))
+                return false;
+            if (new Date(date) > new Date())
+                return false;
+            return true;
         };
     }
 };

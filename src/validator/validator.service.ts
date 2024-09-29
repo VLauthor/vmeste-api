@@ -15,7 +15,9 @@ export class ValidatorService {
     if (nick.length <= 3) return false;
     return /^[a-zA-Z]+$/.test(nick);
   };
-  public date = (nick: string): boolean => {
-    return validator.isDate(nick);
+  public date = (date: string): boolean => {
+    if (!validator.isDate(date)) return false;
+    if (new Date(date) > new Date()) return false;
+    return true;
   };
 }

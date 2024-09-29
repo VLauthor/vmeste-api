@@ -72,52 +72,6 @@ let WebsocketGateway = class WebsocketGateway {
             }
         }, 2000);
     }
-    async register(message, socket) {
-        console.log(message.session);
-        const id = await this.db.getIdBySession(message.session);
-        if (id == null)
-            return socket.emit('disableTelegramRegister', {
-                msg: 'you are not registered',
-            });
-        if (await this.db.checkTelegramVerifyById(id))
-            return socket.emit('disableTelegramRegister', {
-                msg: 'a telegram is already linked to this account',
-            });
-        const rand = new class_1.Random(15);
-        const str = await rand.generateString();
-        socket.emit('urlTelegramRegister', {
-            url: `https://t.me/angelica_vl_bot?start=register-${str}`,
-        });
-        const maxTime = 3 * 60 * 1000;
-        let currentTime = 0;
-        const interval = setInterval(async () => {
-            currentTime += 2000;
-            if (currentTime >= maxTime) {
-                clearInterval(interval);
-                socket.emit('disableTelegramRegister', {
-                    msg: 'timeout register',
-                });
-            }
-            const value = this.cache.getTG(str);
-            if (value) {
-                if (value.bool == true) {
-                    this.db.addTelegramVerify(id, value);
-                    socket.emit('acceptTelegramRegister', {
-                        data: value,
-                    });
-                    this.cache.deleteTG(str);
-                    clearInterval(interval);
-                }
-                else if (value.bool == false) {
-                    socket.emit('disableTelegramRegister', {
-                        msg: 'registration rejected',
-                    });
-                    this.cache.deleteTG(str);
-                    clearInterval(interval);
-                }
-            }
-        }, 2000);
-    }
     handleDisconnect(socket) {
         console.log('Client disconnected: ', socket.id);
         delete this.users[socket.id];
@@ -143,12 +97,10 @@ __decorate([
 ], WebsocketGateway.prototype, "login", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('registerTelegram'),
-    __param(0, (0, websockets_1.MessageBody)()),
-    __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, socket_io_1.Socket]),
-    __metadata("design:returntype", Promise)
-], WebsocketGateway.prototype, "register", null);
+    __metadata("design:paramtypes", [socket_io_1.Socket]),
+    __metadata("design:returntype", void 0)
+], WebsocketGateway.prototype, "handleDisconnect", null);
 exports.WebsocketGateway = WebsocketGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({ namespace: 'api/socket/telegram' }),
     __metadata("design:paramtypes", [cache_service_1.CacheService,

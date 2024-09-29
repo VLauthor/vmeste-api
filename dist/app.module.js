@@ -23,6 +23,7 @@ const cache_module_1 = require("./cache/cache.module");
 const notes_module_1 = require("./notes/notes.module");
 const base64_module_1 = require("./base64/base64.module");
 const barcode_module_1 = require("./barcode/barcode.module");
+const auth_module_1 = require("./auth/auth.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
             notes_module_1.NotesModule,
             base64_module_1.Base64Module,
             barcode_module_1.BarcodeModule,
+            auth_module_1.AuthModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, configuration_service_1.ConfService],

@@ -34,6 +34,12 @@ let ConfService = class ConfService {
     returnTgToken() {
         return this.configService.get('BOT_TOKEN');
     }
+    returnAccessSalt() {
+        return this.configService.get('ACCESS_SALT');
+    }
+    returnRefreshSalt() {
+        return this.configService.get('REFRESH_SALT');
+    }
 };
 exports.ConfService = ConfService;
 exports.ConfService = ConfService = __decorate([

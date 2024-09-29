@@ -8,4 +8,6 @@ export declare class ConfService {
     returnMailPasswordConfig(): string;
     returnMailPortConfig(): number;
     returnTgToken(): string;
+    returnAccessSalt(): string;
+    returnRefreshSalt(): string;
 }

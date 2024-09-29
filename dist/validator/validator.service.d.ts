@@ -3,5 +3,5 @@ export declare class ValidatorService {
     phone: (phone: string) => boolean;
     password: (password: string) => boolean;
     nickname: (nick: string) => boolean;
-    date: (nick: string) => boolean;
+    date: (date: string) => boolean;
 }

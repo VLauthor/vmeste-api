@@ -155,7 +155,6 @@ let TBotService = class TBotService {
                     mail: ui.mail,
                     nickname: ui.nickname,
                     date_birthday: ui.date_birthday,
-                    number: ui.number,
                 });
             }
             Next();
@@ -1045,7 +1044,6 @@ let TBotService = class TBotService {
             const str = await rand.generateString();
             const from = ctx.update.callback_query.from;
             const id = await this.db.getUserIdByTelegramId(from.id);
-            await this.db.createSession(str, id);
             this.cache.setLoginTG(code, { bool: true, session: str }, 2);
             return ctx.answerCallbackQuery('Успешная авторизация!');
         });
@@ -1291,4 +1289,9 @@ exports.TBotService = TBotService = __decorate([
         registaration_1.Registration,
         hash_service_1.HashService])
 ], TBotService);
+class XD {
+    constructor(xd) {
+        this.xd = xd;
+    }
+}
 //# sourceMappingURL=telegram-bot.service.js.map

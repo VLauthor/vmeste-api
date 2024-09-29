@@ -16,36 +16,10 @@ let NotesService = class NotesService {
     constructor(db) {
         this.db = db;
         this.getAllUserNotes = async (dto) => {
-            console.log(dto.session);
-            const resUserId = await this.db.getUserIdBySession(dto.session);
-            if (resUserId == false)
-                throw new common_1.BadRequestException('session does not exist');
-            const notes = await this.db.getAllUserNotes(resUserId);
-            if (notes.length == 0)
-                return { statusCode: common_1.HttpStatus.OK, message: 'not notes' };
-            return { statusCode: common_1.HttpStatus.OK, notes: notes };
         };
         this.newNotesUser = async (dto) => {
-            const resUserId = await this.db.getUserIdBySession(dto.session);
-            if (resUserId == false)
-                throw new common_1.BadRequestException('session does not exist');
-            await this.db.postNoteUser(resUserId, dto.name, dto.description);
-            const notes = await this.db.getAllUserNotes(resUserId);
-            if (notes.length == 0)
-                return { statusCode: common_1.HttpStatus.OK, message: 'not notes' };
-            return { statusCode: common_1.HttpStatus.CREATED, notes: notes };
         };
         this.deleteNotesUser = async (dto) => {
-            const resUserId = await this.db.getUserIdBySession(dto.session);
-            if (!Number(dto.id))
-                throw new common_1.BadRequestException('id not valid');
-            if (resUserId == false)
-                throw new common_1.BadRequestException('session does not exist');
-            await this.db.deleteNoteUser(Number(dto.id));
-            const notes = await this.db.getAllUserNotes(resUserId);
-            if (notes.length == 0)
-                return { statusCode: common_1.HttpStatus.OK, message: 'not notes' };
-            return { statusCode: common_1.HttpStatus.OK, notes: notes };
         };
     }
 };

@@ -386,28 +386,28 @@ export class Registration {
         const passwordHash = await hash.createHash(password_hash);
         date.month++;
         const formater = new formatDate(date);
-        const resultAddUser = await db.newUser({
-          last_name: last_name,
-          first_name: first_name,
-          patronomic: patronomic ? patronomic : '',
-          mail: mail,
-          nickname: nickname,
-          gender: gender,
-          date_birthday: formater.returnDBDate(),
-          password: passwordHash,
-        });
-        if (resultAddUser.statusCode != HttpStatus.CREATED) {
-          console.log(resultAddUser);
-          if (resultAddUser.statusCode === HttpStatus.CONFLICT) {
-            let text: string =
-              'Ошибка создания пользователя.\nДанные следующих полей уже зарегистрированы:';
-            for (const item of resultAddUser.description.fields)
-              text += ` ${fields(item)}`;
-            return this.sendWarning(ctx, text, 10);
-          }
-          return this.sendWarning(ctx, 'Ошибка создания пользователя', 3);
-        } else {
-        }
+        // const resultAddUser = await db.newUser({
+        //   last_name: last_name,
+        //   first_name: first_name,
+        //   patronomic: patronomic ? patronomic : '',
+        //   mail: mail,
+        //   nickname: nickname,
+        //   gender: gender,
+        //   date_birthday: formater.returnDBDate(),
+        //   password: passwordHash,
+        // });
+        // if (resultAddUser.statusCode != HttpStatus.CREATED) {
+        //   console.log(resultAddUser);
+        //   if (resultAddUser.statusCode === HttpStatus.CONFLICT) {
+        //     let text: string =
+        //       'Ошибка создания пользователя.\nДанные следующих полей уже зарегистрированы:';
+        //     for (const item of resultAddUser.description.fields)
+        //       text += ` ${fields(item)}`;
+        //     return this.sendWarning(ctx, text, 10);
+        //   }
+        //   return this.sendWarning(ctx, 'Ошибка создания пользователя', 3);
+        // } else {
+        // }
         // const resultAddTelegram = await db.addTelegramVerify();
       })
       .row()

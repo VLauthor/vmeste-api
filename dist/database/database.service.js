@@ -32,25 +32,41 @@ let DatabaseService = class DatabaseService {
             });
             return result;
         };
-        this.newUser = async (user) => {
+        this.returnRoleName = async (id) => {
+            const role = await this.p.role.findUnique({
+                where: { id: id },
+                select: { role: true },
+            });
+            return role.role;
+        };
+        this.newUser = async (data) => {
             try {
-                const user_id = await this.p.users.create({
+                const initials = data.initials.split(' ');
+                const userCreate = await this.p.users.create({
                     data: {
-                        last_name: user.last_name,
-                        first_name: user.first_name,
-                        patronomic: user.patronomic,
-                        number: user.number,
-                        mail: user.mail,
-                        nickname: user.nickname,
-                        gender: user.gender,
-                        date_birthday: user.date_birthday,
-                        password_hash: user.password,
+                        last_name: initials[0],
+                        first_name: initials[1],
+                        patronomic: initials[2] === undefined ? null : initials[2],
+                        mail: data.email,
+                        nickname: data.nickname,
+                        gender: data.gender,
+                        date_birthday: new Date(data.date),
+                        password_hash: data.password,
                     },
-                    select: { user_id: true },
+                    select: { user_id: true, role: { select: { role: true } } },
                 });
+                console.log(userCreate);
+                const payload = {
+                    id: userCreate.user_id,
+                    role: userCreate.role.role,
+                };
                 return {
-                    statusCode: common_1.HttpStatus.CREATED,
-                    message: user_id.user_id.toString(),
+                    accept: {
+                        data: {
+                            payload: payload,
+                        },
+                        message: 'Успешная авторизация',
+                    },
                 };
             }
             catch (e) {
@@ -58,27 +74,15 @@ let DatabaseService = class DatabaseService {
                 if (e.code && e.code === 'P2002') {
                     const fields = e.meta?.target;
                     return {
-                        statusCode: common_1.HttpStatus.CONFLICT,
-                        error: `Duplicate fields: ${fields.join(', ')}`,
-                        description: { fields: fields },
+                        error: {
+                            message: `Данные из следующих полей уже зарегистрированы: ${fields.join(', ')}`,
+                        },
                     };
                 }
                 return {
-                    statusCode: common_1.HttpStatus.PRECONDITION_FAILED,
-                    error: 'An unexpected error',
+                    error: { message: 'An unexpected error' },
                 };
             }
-        };
-        this.createSession = async (session, userId) => {
-            const currentTime = new Date();
-            const futureTime = new Date(currentTime.setHours(currentTime.getHours() + 3));
-            await this.p.sessions.create({
-                data: {
-                    session_id: session,
-                    user_id: userId,
-                    session_create: futureTime,
-                },
-            });
         };
         this.returnUserIdByMail = async (mail) => {
             const userId = await this.p.users.findUnique({
@@ -129,17 +133,6 @@ let DatabaseService = class DatabaseService {
         this.checkRegisterMail = async (mail) => {
             return await this.p.users.count({ where: { mail: mail } });
         };
-        this.checkRegisterPhome = async (phone) => {
-            return await this.p.users.count({ where: { number: phone } });
-        };
-        this.getIdBySession = async (session) => {
-            const id = await this.p.sessions.findUnique({
-                where: { session_id: session },
-            });
-            if (id)
-                return id.user_id;
-            return null;
-        };
         this.checkUserTgById = async (id) => {
             return (await this.p.telegram_Users.count({ where: { user_id: id } })) != 0
                 ? true
@@ -174,15 +167,6 @@ let DatabaseService = class DatabaseService {
                 return false;
             return userId.user_id;
         };
-        this.getUserIdBySession = async (session) => {
-            const user_id = await this.p.sessions.findUnique({
-                where: { session_id: session },
-                select: { user_id: true },
-            });
-            if (!user_id)
-                return false;
-            return user_id.user_id;
-        };
         this.getAllUserNotes = async (userId) => {
             return await this.p.notes.findMany({
                 where: { user_id: userId },
@@ -204,7 +188,6 @@ let DatabaseService = class DatabaseService {
                     last_name: true,
                     first_name: true,
                     patronomic: true,
-                    number: true,
                     mail: true,
                     nickname: true,
                     gender: true,

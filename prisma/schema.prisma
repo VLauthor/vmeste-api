@@ -12,14 +12,16 @@ model Users {
   last_name     String
   first_name    String
   patronomic    String?
-  number        String?           @unique
   mail          String           @unique
   nickname      String           @unique
   gender        Boolean          @default(true)
+  role_id Int @default(1)
+  verified Boolean @default(false)
+  date_registration DateTime @default(now())
+  role  Role @relation(fields: [role_id], references: [id])
   date_birthday DateTime
   password_hash String
   telegram      Telegram_Users[]
-  session       Sessions[]
   code          Code[]
   notes         Notes[]
   reminders Reminders[]
@@ -27,12 +29,10 @@ model Users {
   quiz Quiz[]
 }
 
-model Sessions {
-  session_id     String   @id @default(uuid())
-  user_id        Int
-  user           Users    @relation(fields: [user_id], references: [user_id])
-  active         Boolean  @default(true)
-  session_create DateTime @default(now())
+model Role {
+  id Int @id @default(autoincrement())
+  role String
+  Users Users[]
 }
 
 model Telegram_Users {
