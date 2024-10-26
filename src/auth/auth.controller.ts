@@ -18,6 +18,7 @@ import {
   signInDto,
   updatePasswordDto,
 } from './auth.dto';
+import * as inspector from "node:inspector";
 
 @Controller('auth')
 export class AuthController {
