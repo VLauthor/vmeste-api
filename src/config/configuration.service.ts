@@ -28,4 +28,12 @@ export class ConfService {
   returnTgToken(): string {
     return this.configService.get<string>('BOT_TOKEN');
   }
+
+  returnAccessSalt(): string {
+    return this.configService.get<string>('ACCESS_SALT');
+  }
+
+  returnRefreshSalt(): string {
+    return this.configService.get<string>('REFRESH_SALT');
+  }
 }
