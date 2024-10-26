@@ -18,8 +18,8 @@ import {
   signInDto,
   updatePasswordDto,
 } from './auth.dto';
-import * as inspector from "node:inspector";
-
+import * as inspector from 'node:inspector';
+//потом удали
 @Controller('auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {}
