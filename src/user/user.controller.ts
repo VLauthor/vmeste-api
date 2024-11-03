@@ -18,12 +18,6 @@ import { threadId } from 'worker_threads';
 @Controller('user')
 export class UserController {
   constructor(private readonly s: UserService) {}
-  @ApiOperation({ summary: 'test' })
-  @ApiResponse({ status: 200, type: number })
-  @Get('test')
-  test() {
-    return 12;
-  }
   // @UsePipes(new ValidationPipe())
   // @Get('telegram/login')
   // getTelegramLogin(@Query() dto: getTelegramLoginDto) {

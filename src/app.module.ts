@@ -15,6 +15,7 @@ import { NotesModule } from './notes/notes.module';
 import { Base64Module } from './base64/base64.module';
 import { BarcodeModule } from './barcode/barcode.module';
 import { AuthModule } from './auth/auth.module';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthModule } from './auth/auth.module';
     Base64Module,
     BarcodeModule,
     AuthModule,
+    TestModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfService],

@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Users" ADD COLUMN     "date_registration" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "verified" BOOLEAN NOT NULL DEFAULT false;
