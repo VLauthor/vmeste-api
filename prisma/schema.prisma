@@ -3,35 +3,36 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 model Users {
-  user_id       Int              @id @default(autoincrement())
-  last_name     String
-  first_name    String
-  patronomic    String?
-  mail          String           @unique
-  nickname      String           @unique
-  gender        Boolean          @default(true)
-  role_id Int @default(1)
-  verified Boolean @default(false)
-  date_registration DateTime @default(now())
-  role  Role @relation(fields: [role_id], references: [id])
-  date_birthday DateTime
-  password_hash String
-  telegram      Telegram_Users[]
-  code          Code[]
-  notes         Notes[]
-  reminders Reminders[]
-  userAnswors UserAnswors[]
-  quiz Quiz[]
+  user_id           Int              @id @default(autoincrement())
+  last_name         String
+  first_name        String
+  patronomic        String?
+  mail              String           @unique
+  nickname          String           @unique
+  gender            Boolean          @default(true)
+  role_id           Int              @default(1)
+  verified          Boolean          @default(false)
+  date_registration DateTime         @default(now())
+  role              Role             @relation(fields: [role_id], references: [id])
+  date_birthday     DateTime
+  password_hash     String
+  telegram          Telegram_Users[]
+  code              Code[]
+  notes             Notes[]
+  reminders         Reminders[]
+  userAnswors       UserAnswors[]
+  quiz              Quiz[]
 }
 
 model Role {
-  id Int @id @default(autoincrement())
-  role String
+  id    Int     @id @default(autoincrement())
+  role  String
   Users Users[]
 }
 
@@ -66,50 +67,99 @@ model Notes {
 }
 
 model Reminders {
-  reminders_id Int @id @default(autoincrement())
-  user_id Int
-  name String
-  time DateTime
-  description String?
-  user Users @relation(fields: [user_id], references: [user_id])
+  reminders_id Int      @id @default(autoincrement())
+  user_id      Int
+  name         String
+  time         DateTime
+  description  String?
+  user         Users    @relation(fields: [user_id], references: [user_id])
+}
+
+model Difficulty {
+  d_id  Int    @id @default(autoincrement())
+  value String @unique
+  quiz  Quiz[]
+}
+
+model Category {
+  c_id         Int            @id @default(autoincrement())
+  value        String         @unique
+  CategoryQuiz CategoryQuiz[]
+}
+
+model Limitation {
+  l_id           Int              @id @default(autoincrement())
+  value          String           @unique
+  LimitationQuiz LimitationQuiz[]
 }
 
 model Quiz {
-  quiz_id Int @id @default(autoincrement())
-  author_id Int
-  title String
-  description String
-  private Boolean @default(false)
-  key String?
-  question Questions[]
-  author Users @relation(fields: [author_id], references: [user_id])
+  quiz_id        Int              @id @default(autoincrement())
+  author_id      Int
+  title          String
+  description    String
+  difficulty_id  Int?
+  private        Boolean          @default(false)
+  key            String?
+  time_limit     Int?
+  question       Questions[]
+  LimitationQuiz LimitationQuiz[]
+  CategoryQuiz   CategoryQuiz[]
+  author         Users            @relation(fields: [author_id], references: [user_id])
+  Difficulty     Difficulty?      @relation(fields: [difficulty_id], references: [d_id])
+  limitationL_id Int?
 }
 
-model Questions{
-  question_id Int @id @default(autoincrement())
-  quiz_id Int
-  title String
-  quiz Quiz @relation(fields: [quiz_id], references: [quiz_id])
-  answers Answers[]
-  userAnswors UserAnswors[]
+model CategoryQuiz {
+  cq_id        Int       @id @default(autoincrement())
+  Quiz         Quiz?     @relation(fields: [quizQuiz_id], references: [quiz_id])
+  quizQuiz_id  Int?
+  Category     Category? @relation(fields: [categoryC_id], references: [c_id])
+  categoryC_id Int?
+}
+
+model LimitationQuiz {
+  lq_id          Int         @id @default(autoincrement())
+  Limitation     Limitation? @relation(fields: [limitationL_id], references: [l_id])
+  limitationL_id Int?
+  Quiz           Quiz?       @relation(fields: [quizQuiz_id], references: [quiz_id])
+  quizQuiz_id    Int?
+}
+
+model QuestionsType {
+  qt_id     Int         @id @default(autoincrement())
+  value     String
+  Questions Questions[]
+}
+
+model Questions {
+  question_id        Int            @id @default(autoincrement())
+  quiz_id            Int
+  text               String
+  hint               String
+  quiz               Quiz           @relation(fields: [quiz_id], references: [quiz_id])
+  questionsTypeQt_id Int?
+  score              Int
+  answers            Answers[]
+  userAnswors        UserAnswors[]
+  QuestionsType      QuestionsType? @relation(fields: [questionsTypeQt_id], references: [qt_id])
 }
 
 model Answers {
-  answer_id Int @id @default(autoincrement())
+  answer_id   Int           @id @default(autoincrement())
   question_id Int
-  title String
-  correct Boolean @default(false)
-  question Questions @relation(fields: [question_id], references: [question_id])
+  text        String
+  flag        Boolean       @default(false)
+  question    Questions     @relation(fields: [question_id], references: [question_id])
   userAnswors UserAnswors[]
 }
 
 model UserAnswors {
-  node_id Int @id @default(autoincrement())
-  user_id Int
+  node_id     Int       @id @default(autoincrement())
+  user_id     Int
   question_id Int
-  answer_id Int
-  user Users @relation(fields: [user_id], references: [user_id])
-  question Questions @relation(fields: [question_id], references: [question_id])
-  answers Answers @relation(fields: [answer_id], references: [answer_id])
+  answer_id   Int
+  user        Users     @relation(fields: [user_id], references: [user_id])
+  question    Questions @relation(fields: [question_id], references: [question_id])
+  answers     Answers   @relation(fields: [answer_id], references: [answer_id])
 }
-
