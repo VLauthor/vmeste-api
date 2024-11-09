@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Users {
@@ -99,15 +98,12 @@ model Quiz {
   title          String
   description    String
   difficulty_id  Int?
-  private        Boolean          @default(false)
-  key            String?
   time_limit     Int?
   question       Questions[]
-  LimitationQuiz LimitationQuiz[]
   CategoryQuiz   CategoryQuiz[]
   author         Users            @relation(fields: [author_id], references: [user_id])
   Difficulty     Difficulty?      @relation(fields: [difficulty_id], references: [d_id])
-  limitationL_id Int?
+  LimitationQuiz LimitationQuiz[]
 }
 
 model CategoryQuiz {

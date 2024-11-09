@@ -10,10 +10,12 @@ import {
   ValidationPipe,
   Res,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { TestService } from './test.service';
 import { number, object } from 'joi';
+import { parse } from 'cookie';
 import {
   ApiBody,
   ApiOperation,
@@ -25,6 +27,7 @@ import {
 import { AddQuestionsDTO, CreateQuizDTO } from './dto/request.dto';
 import { CreateQuizResponseDTO } from './dto/response.dto';
 import { GlobalErrorDTO } from 'src/objects/pesponse.dto';
+import { STATUS_CODES } from 'http';
 
 @ApiTags('Тестовый модуль')
 @Controller('test')
@@ -90,5 +93,12 @@ export class TestController {
   ) {
     const json: CreateQuizResponseDTO = { id: 123 };
     return response.status(HttpStatus.OK).json(json);
+  }
+
+  @Get('xd')
+  xd(@Res() response: Response, @Req() req: Request) {
+    const myCookie1 = req.cookies['refreshToken'];
+    const myCookie2 = req.cookies['accessToken'];
+    response.status(200).json({ myCookie1, myCookie2 });
   }
 }

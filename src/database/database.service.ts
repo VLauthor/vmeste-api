@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   CacheTelegram,
   DatabaseResult,
@@ -11,8 +11,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { signInDto } from 'src/auth/auth.dto';
 import { HashService } from '../hash/hash.service';
-import { title } from 'process';
-import { message } from 'src/string/string';
 @Injectable()
 export class DatabaseService {
   private p: PrismaService;
@@ -33,13 +31,6 @@ export class DatabaseService {
     });
     return result;
   };
-  public returnPasswordByMail = async (mail: string): Promise<objectUser> => {
-    const result: objectUser = await this.p.users.findUnique({
-      where: { mail: mail },
-      select: { user_id: true, password_hash: true },
-    });
-    return result;
-  };
   public returnRoleName = async (id: number): Promise<string> => {
     const role = await this.p.role.findUnique({
       where: { id: id },
@@ -47,92 +38,8 @@ export class DatabaseService {
     });
     return role.role;
   };
-  public newUser = async (data: signInDto): Promise<DatabaseResult> => {
-    try {
-      const initials = data.initials.split(' ');
-      const userCreate = await this.p.users.create({
-        data: {
-          last_name: initials[0],
-          first_name: initials[1],
-          patronomic: initials[2] === undefined ? null : initials[2],
-          mail: data.email,
-          nickname: data.nickname,
-          gender: data.gender,
-          date_birthday: new Date(data.date),
-          password_hash: data.password,
-        },
-        select: { user_id: true, role: { select: { role: true } } },
-      });
-      console.log(userCreate);
-
-      const payload: Payload = {
-        id: userCreate.user_id,
-        role: userCreate.role.role,
-      };
-      return {
-        accept: {
-          data: {
-            payload: payload,
-          },
-          message: 'Успешная авторизация',
-        },
-      };
-    } catch (e: any) {
-      console.log(e);
-
-      if (e.code && e.code === 'P2002') {
-        const fields = e.meta?.target;
-        return {
-          error: {
-            message: `Данные из следующих полей уже зарегистрированы: ${fields.join(', ')}`,
-          },
-        };
-      }
-      return {
-        error: { message: 'An unexpected error' },
-      };
-    }
-  };
-  public returnUserIdByMail = async (mail: string) => {
-    const userId = await this.p.users.findUnique({
-      where: { mail: mail },
-      select: { user_id: true },
-    });
-    if (userId) return userId.user_id;
-    return null;
-  };
-  public addCodeMail = async (userId: number, key: string) => {
-    const date = new Date();
-    const hours = date.getHours() + 3;
-    date.setHours(hours);
-    console.log(date);
-    await this.p.code.upsert({
-      where: { user_id: userId },
-      update: { key: key, date_create: date },
-      create: {
-        user_id: userId,
-        key: key,
-      },
-    });
-  };
   public checkMail = async (mail: string) => {
     return await this.p.users.count({ where: { mail: mail } });
-  };
-  public checkCodeUser = async (userId: number, code: string) => {
-    const r = await this.p.code.findUnique({
-      where: { user_id: userId, key: code },
-      select: {
-        date_create: true,
-      },
-    });
-    if (r) return r.date_create;
-    return null;
-  };
-  public updatePassword = async (userId: number, password_hash: string) => {
-    await this.p.users.update({
-      where: { user_id: userId },
-      data: { password_hash: password_hash },
-    });
   };
   public checkRegisterNickname = async (nick: string) => {
     return await this.p.users.count({ where: { nickname: nick } });
@@ -337,58 +244,58 @@ export class DatabaseService {
       },
     });
   };
-  public addQuiz = async (id: number, quiz: Quiz, questions: Questions[]) => {
-    const idQuiz = await this.p.quiz.create({
-      data: {
-        author_id: id,
-        title: quiz.title,
-        description: quiz.description,
-        private: quiz.mode === 'private' ? true : false,
-        key: quiz.mode === 'private' ? quiz.key : null,
-      },
-      select: { quiz_id: true },
-    });
-    for (let i = 0; i < questions.length; i++) {
-      const question = questions[i];
-      const idQuestion = await this.p.questions.create({
-        data: { quiz_id: idQuiz.quiz_id, title: question.title },
-        select: { question_id: true },
-      });
-      for (let j = 0; j < question.answers.length; j++) {
-        const answer = question.answers[j];
-        await this.p.answers.create({
-          data: {
-            question_id: idQuestion.question_id,
-            title: answer.title,
-            correct: answer.correct,
-          },
-        });
-      }
-    }
-  };
-  public GetAllQuiz = async () => {
-    return await this.p.quiz.findMany({
-      select: {
-        quiz_id: true,
-        title: true,
-        description: true,
-        private: true,
-        key: true,
-        question: {
-          select: {
-            title: true,
-            answers: {
-              select: {
-                answer_id: true,
-                title: true,
-                correct: true,
-              },
-            },
-          },
-        },
-      },
-    });
-  };
+  // public addQuiz = async (id: number, quiz: Quiz, questions: Questions[]) => {
+  //   const idQuiz = await this.p.quiz.create({
+  //     data: {
+  //       author_id: id,
+  //       title: quiz.title,
+  //       description: quiz.description,
+  //       private: quiz.mode === 'private' ? true : false,
+  //       key: quiz.mode === 'private' ? quiz.key : null,
+  //     },
+  //     select: { quiz_id: true },
+  //   });
+  //   for (let i = 0; i < questions.length; i++) {
+  //     const question = questions[i];
+  //     const idQuestion = await this.p.questions.create({
+  //       data: { quiz_id: idQuiz.quiz_id, text: question.title },
+  //       select: { question_id: true },
+  //     });
+  //     for (let j = 0; j < question.answers.length; j++) {
+  //       const answer = question.answers[j];
+  //       await this.p.answers.create({
+  //         data: {
+  //           question_id: idQuestion.question_id,
+  //           text: answer.title,
+  //           flag: answer.correct,
+  //         },
+  //       });
+  //     }
+  //   }
+  // };
+  // public GetAllQuiz = async () => {
+  //   return await this.p.quiz.findMany({
+  //     select: {
+  //       quiz_id: true,
+  //       title: true,
+  //       description: true,
+  //       private: true,
+  //       key: true,
+  //       question: {
+  //         select: {
+  //           title: true,
+  //           answers: {
+  //             select: {
+  //               answer_id: true,
+  //               title: true,
+  //               correct: true,
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   });
+  // };
   private formatDateString(date: Date): { date: string; time: string } {
     const day = String(date.getUTCDate()).padStart(2, '0'); // Получаем день
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Получаем месяц (месяцы начинаются с 0)

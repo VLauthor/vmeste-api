@@ -5,12 +5,15 @@ import {
   Injectable,
   RequestTimeoutException,
 } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
-import { objectUser, ResponseInt } from '../objects/interfaces';
-import { ValidatorService } from '../validator/validator.service';
-import { HashService } from '../hash/hash.service';
-import { TokensService } from 'src/tokens/tokens.service';
 import { Response } from 'express';
+import { AuthDatabaseService } from 'src/database/auth.service';
+import { ResponseInt } from 'src/objects/pesponse.dto';
+import { TokensService } from 'src/tokens/tokens.service';
+import { HashService } from '../hash/hash.service';
+import { MailService } from '../mail/mail.service';
+import { CheckWidthTime, Random } from '../objects/class';
+import { objectUser } from '../objects/interfaces';
+import { ValidatorService } from '../validator/validator.service';
 import {
   checkCodeDto,
   createCodeDto,
@@ -18,15 +21,12 @@ import {
   signInDto,
   updatePasswordDto,
 } from './auth.dto';
-import { CheckWidthTime, Random } from '../objects/class';
-import { MailService } from '../mail/mail.service';
-import { message } from 'src/string/string';
 // import { TBotService } from 'src/telegram-bot/telegram-bot.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private d: DatabaseService,
+    private d: AuthDatabaseService,
     private v: ValidatorService,
     private h: HashService,
     private m: MailService,
@@ -35,12 +35,11 @@ export class AuthService {
   ) {}
   public loginUser = async (res: Response, dto: loginDto) => {
     const { login, password } = dto;
+    console.log({ login, password });
     if (!this.v.mail(login)) throw new BadRequestException('mail is not valid');
     const resultMail: objectUser = await this.d.returnPasswordByMail(login);
     if (resultMail) {
       if (await this.h.checkHash(password, resultMail.password_hash)) {
-        console.log('xd');
-
         const refreshToken = this.tokens.createRefreshToken({
           id: resultMail.user_id,
         });
@@ -68,11 +67,11 @@ export class AuthService {
         return res.status(HttpStatus.OK).json(json);
       }
       throw new BadRequestException(
-        'Неверный пароль. Пожалуйста проверьте его и повтоорите попытку.',
+        'Неверный пароль. Пожалуйста проверьте его и повторите попытку.',
       );
     }
     throw new BadRequestException(
-      'Не удалось провести авторизацию, повторите Ваш запрос позже!ы',
+      'Неверная почта. Пожалуйста проверьте ее и повторите попытку.',
     );
   };
 
@@ -88,11 +87,11 @@ export class AuthService {
       );
     if (!this.v.password(dto.password))
       throw new BadRequestException(
-        'Ваш пароль слишкм ленкий, пожалуйста усложните его.',
+        'Ваш пароль слишкм легкий, пожалуйста усложните его.',
       );
     if (!this.v.date(dto.date))
       throw new BadRequestException(
-        'Введена не кореектный дата рождения, пожалуйста проверьте её.',
+        'Введена не кореектная дата рождения, пожалуйста проверьте её.',
       );
     dto.password = await this.h.createHash(dto.password);
     const result = await this.d.newUser(dto);
@@ -128,7 +127,7 @@ export class AuthService {
     const userId = await this.d.returnUserIdByMail(dto.email);
     if (userId == null)
       throw new ConflictException(
-        'Данная почта не зарегистрирована, пожалуйста проверьте ее',
+        'Данная почта не зарегистрирована, пожалуйста проверьте ее.',
       );
     const code = await randomCode.generateCode();
     if (userId) this.d.addCodeMail(userId, code);
@@ -185,5 +184,13 @@ export class AuthService {
       message: `Пароль успешно изменен`,
     };
     return res.status(HttpStatus.OK).json(json);
+  };
+
+  public test = async (res: Response) => {
+    await this.m.sendVerificationMail(
+      'shandybin.ion@icloud.com',
+      'https://ya.ru/',
+    );
+    return res.status(200).send('xd');
   };
 }

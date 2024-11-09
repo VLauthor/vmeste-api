@@ -30,7 +30,7 @@ export class Quiz {
       const user = cache.getUsersTg(userId);
       ctx.deleteMessage();
       if (cache.getAllQuizzes().length === 0) {
-        cache.setQuizzes(await db.GetAllQuiz());
+        // cache.setQuizzes(await db.GetAllQuiz());
       }
       console.log(1);
       const mess = await ctx.reply('Меню викторин', {
@@ -61,7 +61,7 @@ export class Quiz {
       const user = cache.getUsersTg(userId);
       if (!(await this.checkQuizData(ctx, user))) return;
       const quiz = user.quiz.create.quizData;
-      await db.addQuiz(user.id_VL, quiz, user.quiz.create.questions);
+      // await db.addQuiz(user.id_VL, quiz, user.quiz.create.questions);
       ctx.deleteMessage();
       const mess = await ctx.reply(
         'Викторина создана, вы можете ее посмотреть в разделе викторин',

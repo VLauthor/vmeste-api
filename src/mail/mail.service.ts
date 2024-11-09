@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { ConfService } from '../config/configuration.service';
 import * as nodemailer from 'nodemailer';
+import { ConfService } from '../config/configuration.service';
 import { MailAttachments, MailMassage } from '../objects/interfaces';
 const path = require('path');
 
@@ -21,7 +21,7 @@ export class MailService {
       debug: false,
     },
     {
-      from: `Angelica VL <${this.config.returnMailHostUserConfig()}> `,
+      from: `VMeste Group <${this.config.returnMailHostUserConfig()}> `,
     },
   );
   private send = async (message: MailMassage) => {
@@ -56,11 +56,29 @@ export class MailService {
       cid: 'unique@image.cid',
     };
     const message: MailMassage = {
-      from: `Anjelica VL < ${this.config.returnMailHostUserConfig()}> `,
+      from: `VMeste Group <${this.config.returnMailHostUserConfig()}> `,
       to: mail,
       subject: 'Код восстановления пароля',
       html: html,
       attachments: [image],
+    };
+    return await this.send(message);
+  };
+
+  public sendVerificationMail = async (mail: string, link: string) => {
+    const mailPath = path.join(
+      __dirname,
+      '../../public/views/mailVerification.ejs',
+    );
+    const html = await ejs.renderFile(mailPath, {
+      href: link,
+    });
+    const message: MailMassage = {
+      from: `VMeste Group <${this.config.returnMailHostUserConfig()}> `,
+      to: mail,
+      subject: 'Подтверждение почты',
+      html: html,
+      attachments: [],
     };
     return await this.send(message);
   };

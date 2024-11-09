@@ -19,3 +19,16 @@ export class GlobalErrorDTO {
   })
   statusCode: number;
 }
+
+export class ResponseInt {
+  @ApiProperty({
+    description: 'Код ответа',
+    default: 200,
+  })
+  statusCode: number;
+  @ApiProperty({
+    description: 'Сообщение',
+    default: 'Message...',
+  })
+  message?: string;
+}

@@ -1,16 +1,15 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
-  Put,
-  Body,
   Query,
+  Res,
   UsePipes,
   ValidationPipe,
-  Res,
-  Response,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GlobalErrorDTO, ResponseInt } from 'src/objects/pesponse.dto';
 import {
   checkCodeDto,
   createCodeDto,
@@ -18,43 +17,135 @@ import {
   signInDto,
   updatePasswordDto,
 } from './auth.dto';
-import * as inspector from 'node:inspector';
-//потом удали
+import { AuthService } from './auth.service';
+@ApiTags('Авторизация и регистрация')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {}
   //Ендпоинт авторизации
+  @ApiOperation({
+    summary: 'Авторизация пользователя',
+    description: 'Ендпоинт для авторизации пользователя',
+    tags: ['Авторизация', 'login'],
+  })
+  @ApiBody({
+    type: loginDto,
+    description: 'Данные для авторизации',
+  })
+  @ApiResponse({
+    status: 400,
+    type: GlobalErrorDTO,
+    description: 'Результат возвращаемый при неверном заполнении полей',
+  })
+  @ApiResponse({
+    status: 200,
+    type: ResponseInt,
+    description: 'Результат возвращаемый при успешной авторизации',
+  })
   @UsePipes(new ValidationPipe())
   @Post('login')
   getLogin(@Res() res: Response, @Body() dto: loginDto) {
     return this.service.loginUser(res, dto);
   }
-  //Ендпоинт регистрации
+
+  @ApiOperation({
+    summary: 'Регистрация пользователя',
+    description: 'Ендпоинт для регистрации пользователя',
+    tags: ['Регистрация', 'signin'],
+  })
+  @ApiBody({
+    type: signInDto,
+    description: 'Данные для регистрации',
+  })
+  @ApiResponse({
+    status: 400,
+    type: GlobalErrorDTO,
+    description: 'Результат возвращаемый при неверном заполнении полей',
+  })
+  @ApiResponse({
+    status: 200,
+    type: ResponseInt,
+    description: 'Результат возвращаемый при успешной регистрации',
+  })
   @UsePipes(new ValidationPipe())
   @Post('signin')
   postRegistration(@Res() res: Response, @Body() dto: signInDto) {
     return this.service.signInUser(res, dto);
   }
 
-  //xd
+  @ApiOperation({
+    summary: 'Получение кода',
+    description: 'Создание кода для восстановления пароля',
+    tags: ['Код', 'code'],
+  })
+  @ApiBody({
+    type: createCodeDto,
+    description: 'Данные для операции',
+  })
+  @ApiResponse({
+    status: 400,
+    type: GlobalErrorDTO,
+    description: 'Результат возвращаемый при неверном заполнении полей',
+  })
+  @ApiResponse({
+    status: 200,
+    type: ResponseInt,
+    description: 'Результат возвращаемый при отправке кода',
+  })
   @UsePipes(new ValidationPipe())
   @Post('code/create')
   postCodeCreate(@Res() res: Response, @Body() dto: createCodeDto) {
     return this.service.createCode(res, dto);
   }
+
+  @ApiOperation({
+    summary: 'Проверка кода для смены пароля пользователя',
+    description: 'Ендпоинт для проверка кода для смены пароля пользователя',
+    tags: ['Смена пароль', 'edit password'],
+  })
+  @ApiResponse({
+    status: 400,
+    type: GlobalErrorDTO,
+    description: 'Результат возвращаемый при неверном заполнении полей',
+  })
+  @ApiResponse({
+    status: 200,
+    type: ResponseInt,
+    description: 'Результат возвращаемый при успешной авторизации',
+  })
   @UsePipes(new ValidationPipe())
   @Get('code/check')
   getCodeCheck(@Res() res: Response, @Query() dto: checkCodeDto) {
     return this.service.checkCode(res, dto);
   }
+
+  @ApiOperation({
+    summary: 'Изменение пароля',
+    description: 'Изменение пароля',
+    tags: ['Смена пароль', 'edit password'],
+  })
+  @ApiBody({
+    type: updatePasswordDto,
+    description: 'Данные для операции',
+  })
+  @ApiResponse({
+    status: 400,
+    type: GlobalErrorDTO,
+    description: 'Результат возвращаемый при неверном заполнении полей',
+  })
+  @ApiResponse({
+    status: 200,
+    type: ResponseInt,
+    description: 'Результат возвращаемый при отправке кода',
+  })
   @UsePipes(new ValidationPipe())
   @Post('password/update')
   updatePassword(@Res() res: Response, @Body() dto: updatePasswordDto) {
     return this.service.updatePassword(res, dto);
   }
 
-  //create endpoint create link
-  @UsePipes(new ValidationPipe())
-  @Post('create')
-  createLink(@Res() res: Response) {}
+  @Post('test')
+  test(@Res() res: Response) {
+    return this.service.test(res);
+  }
 }
